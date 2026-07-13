@@ -3,7 +3,7 @@
     "name": "Luke Quarderer",
     "title": "Engineering Portfolio",
     "intro": "Selected projects from my engineering degree — designed, built, tested, and documented. Each entry lists the skills applied, the tools used, and the artefacts produced as evidence of the work.",
-    "email": "you@example.com",
+    "email": "lukeq@umich.edu",
     "updated": "2026-07-13"
   },
   "projects": [
@@ -19,11 +19,25 @@
       "role": "Analysis lead in a team of four",
       "outcome": "Failure prediction within 8% of test result",
       "featured": true,
-      "skillIds": ["s-001", "s-002"],
-      "toolIds": ["t-001", "t-002"],
+      "skillIds": [
+        "s-001",
+        "s-002"
+      ],
+      "toolIds": [
+        "t-001",
+        "t-002"
+      ],
       "artefacts": [
-        { "title": "Final analysis report", "url": "https://example.com/report.pdf", "type": "Report" },
-        { "title": "FEA mesh study", "url": "https://example.com/mesh.pdf", "type": "Drawing" }
+        {
+          "title": "Final analysis report",
+          "url": "https://example.com/report.pdf",
+          "type": "Report"
+        },
+        {
+          "title": "FEA mesh study",
+          "url": "https://example.com/mesh.pdf",
+          "type": "Drawing"
+        }
       ]
     },
     {
@@ -38,23 +52,72 @@
       "role": "Sole designer and builder",
       "outcome": "Deployed on two test days; 100% data capture",
       "featured": false,
-      "skillIds": ["s-003", "s-002"],
-      "toolIds": ["t-003", "t-004"],
+      "skillIds": [
+        "s-003",
+        "s-002"
+      ],
+      "toolIds": [
+        "t-003",
+        "t-004"
+      ],
       "artefacts": [
-        { "title": "Firmware repository", "url": "https://github.com/example/telemetry", "type": "Code" },
-        { "title": "PCB layout", "url": "https://example.com/pcb.png", "type": "Photo" }
+        {
+          "title": "Firmware repository",
+          "url": "https://github.com/example/telemetry",
+          "type": "Code"
+        },
+        {
+          "title": "PCB layout",
+          "url": "https://example.com/pcb.png",
+          "type": "Photo"
+        }
       ]
     }
   ],
   "skills": [
-    { "id": "s-001", "name": "Finite Element Analysis", "category": "Analysis", "proficiency": "Advanced" },
-    { "id": "s-002", "name": "Technical Reporting", "category": "Communication", "proficiency": "Advanced" },
-    { "id": "s-003", "name": "Embedded Firmware Design", "category": "Software", "proficiency": "Intermediate" }
+    {
+      "id": "s-001",
+      "name": "Finite Element Analysis",
+      "category": "Analysis",
+      "proficiency": "Advanced"
+    },
+    {
+      "id": "s-002",
+      "name": "Technical Reporting",
+      "category": "Communication",
+      "proficiency": "Advanced"
+    },
+    {
+      "id": "s-003",
+      "name": "Embedded Firmware Design",
+      "category": "Software",
+      "proficiency": "Intermediate"
+    }
   ],
   "tools": [
-    { "id": "t-001", "name": "ANSYS Mechanical", "type": "Simulation", "proficiency": "Advanced" },
-    { "id": "t-002", "name": "SolidWorks", "type": "CAD", "proficiency": "Advanced" },
-    { "id": "t-003", "name": "C (STM32)", "type": "Language", "proficiency": "Intermediate" },
-    { "id": "t-004", "name": "Python", "type": "Language", "proficiency": "Advanced" }
+    {
+      "id": "t-001",
+      "name": "ANSYS Mechanical",
+      "type": "Simulation",
+      "proficiency": "Advanced"
+    },
+    {
+      "id": "t-002",
+      "name": "SolidWorks",
+      "type": "CAD",
+      "proficiency": "Advanced"
+    },
+    {
+      "id": "t-003",
+      "name": "C (STM32)",
+      "type": "Language",
+      "proficiency": "Intermediate"
+    },
+    {
+      "id": "t-004",
+      "name": "Python",
+      "type": "Language",
+      "proficiency": "Advanced"
+    }
   ]
 }
