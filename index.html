@@ -6,6 +6,14 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="theme-color" content="#FBF8F1">
 <title>Portfolio</title>
+<meta name="description" content="__SEO_DESC__">
+<meta property="og:title" content="__SEO_TITLE__">
+<meta property="og:description" content="__SEO_DESC__">
+<meta property="og:type" content="website">
+<meta property="og:url" content="__SEO_URL__">
+<meta property="og:image" content="__SEO_IMAGE__">
+<meta name="twitter:card" content="__SEO_CARD__">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..700,50&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -232,6 +240,7 @@
   }
 
   const meta = data.meta || {};
+  if (meta.accent && /^#[0-9A-Fa-f]{6}$/.test(meta.accent)) document.documentElement.style.setProperty("--red", meta.accent);
   const skills = data.skills || [];
   const tools = data.tools || [];
   const byId = (list) => Object.fromEntries(list.map(x => [x.id, x]));
