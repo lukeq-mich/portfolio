@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Editor — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FFFFFF; --ink:#1A1A1A; --graphite:#73736E;
+    --rule:#E6E5E1; --red:#A02A1C; --ok:#3E6B3A; --field:#FFFFFF;
+    --font-display:"Fraunces",serif; --font-body:"Newsreader",serif; --font-mono:"IBM Plex Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:1.05rem;line-height:1.5}
+  .mono{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.09em;text-transform:uppercase}
+  .wrap{max-width:960px;margin:0 auto;padding:0 clamp(1.25rem,4vw,3rem)}
+  a{color:inherit}
+  button{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;background:none;border:1px solid var(--ink);border-radius:2px;padding:.55rem 1rem;color:var(--ink)}
+  button:hover{background:var(--ink);color:var(--paper)}
+  button.primary{background:var(--ink);color:var(--paper)}
+  button.primary:hover{background:var(--red);border-color:var(--red)}
+  button.danger{border-color:var(--red);color:var(--red)}
+  button.danger:hover{background:var(--red);color:var(--paper)}
+  button.quiet{border-color:var(--rule);color:var(--graphite)}
+  button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+  input,textarea,select{
+    width:100%;font-family:var(--font-body);font-size:1rem;color:var(--ink);
+    background:var(--field);border:1px solid var(--rule);border-radius:2px;padding:.6rem .7rem;
+  }
+  textarea{min-height:6.5rem;resize:vertical}
+  label{display:block;margin-bottom:1.1rem}
+  label .lbl{display:block;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--graphite);margin-bottom:.35rem}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 1.5rem}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 1.5rem}
+  @media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}}
+  .hidden{display:none!important}
+
+  /* header */
+  header{border-bottom:2px solid var(--ink);padding:1.6rem 0 1rem}
+  header .row{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;flex-wrap:wrap}
+  header h1{font-family:var(--font-display);font-weight:380;font-size:1.9rem}
+  #conn-line{color:var(--graphite)}
+  #dirty-dot{color:var(--red);font-weight:500}
+
+  /* login card */
+  .login{max-width:460px;margin:5rem auto;border:1px solid var(--ink);border-radius:2px;padding:2.2rem;background:#FAFAF9}
+  .login h2{font-family:var(--font-display);font-weight:400;font-size:1.6rem;margin-bottom:.4rem}
+  .login p.sub{color:var(--graphite);font-size:.95rem;margin-bottom:1.6rem;font-weight:300}
+  .msg{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.05em;padding:.6rem .7rem;border-radius:2px;margin-bottom:1rem}
+  .msg.err{color:var(--red);border:1px solid var(--red)}
+  .msg.ok{color:var(--ok);border:1px solid var(--ok)}
+
+  /* tabs */
+  nav.tabs{display:flex;gap:.4rem;padding:1.2rem 0;flex-wrap:wrap}
+  nav.tabs button{border-color:var(--rule);color:var(--graphite)}
+  nav.tabs button.active{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+
+  /* list rows */
+  .rowitem{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.8rem 0;border-bottom:1px solid var(--rule)}
+  .rowitem .nm{font-family:var(--font-display);font-size:1.15rem;font-weight:400}
+  .rowitem .sub{color:var(--graphite);font-size:.85rem}
+  .rowitem .btns{display:flex;gap:.4rem;flex-shrink:0}
+  .section-head{display:flex;justify-content:space-between;align-items:baseline;margin:1.2rem 0 .6rem}
+  .section-head h2{font-family:var(--font-display);font-weight:400;font-size:1.45rem}
+
+  /* editor panel */
+  .editor{border:1px solid var(--ink);border-radius:2px;padding:1.8rem;margin:1rem 0 2rem;background:#FAFAF9}
+  .editor h3{font-family:var(--font-display);font-weight:400;font-size:1.35rem;margin-bottom:1.4rem}
+  .checkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.4rem;border:1px solid var(--rule);border-radius:2px;padding:.8rem;background:var(--field)}
+  .checkgrid label{display:flex;align-items:center;gap:.5rem;margin:0;font-size:.95rem}
+  .checkgrid input{width:auto}
+  .checkline{display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem}
+  .checkline input{width:auto}
+  .art-row{display:grid;grid-template-columns:2fr 3fr 1.2fr auto auto;gap:.6rem;margin-bottom:.6rem;align-items:center}
+  @media(max-width:700px){.art-row{grid-template-columns:1fr}}
+  .editor .actions{display:flex;gap:.6rem;margin-top:1.4rem;flex-wrap:wrap}
+  .empty{color:var(--graphite);font-style:italic;padding:1.5rem 0}
+
+  #toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;padding:.7rem 1.2rem;border-radius:2px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90vw}
+  #toast.show{opacity:1}
+  #toast.err{background:var(--red)}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN / SETUP ============ -->
+<div id="view-login">
+  <div class="login">
+    <h2 id="login-title">Editor login</h2>
+    <p class="sub" id="login-sub">Enter your password to unlock the editor.</p>
+    <div id="login-msg"></div>
+
+    <!-- returning user -->
+    <div id="login-form">
+      <label><span class="lbl">Password</span>
+        <input type="password" id="in-password" autocomplete="current-password">
+      </label>
+      <button class="primary" id="btn-unlock" style="width:100%">Unlock editor</button>
+      <p style="margin-top:1.2rem;text-align:center"><button class="quiet" id="btn-show-reset">Reset connection</button></p>
+    </div>
+
+    <!-- first-run setup -->
+    <div id="setup-form" class="hidden">
+      <label><span class="lbl">GitHub username</span>
+        <input type="text" id="in-owner" placeholder="your-username" autocomplete="off">
+      </label>
+      <label><span class="lbl">Repository name</span>
+        <input type="text" id="in-repo" placeholder="portfolio" autocomplete="off">
+      </label>
+      <label><span class="lbl">Branch</span>
+        <input type="text" id="in-branch" value="main" autocomplete="off">
+      </label>
+      <label><span class="lbl">Fine-grained personal access token</span>
+        <input type="password" id="in-token" placeholder="github_pat_…" autocomplete="off">
+      </label>
+      <label><span class="lbl">Choose a password (unlocks the editor on this device)</span>
+        <input type="password" id="in-newpass" autocomplete="new-password">
+      </label>
+      <label><span class="lbl">Confirm password</span>
+        <input type="password" id="in-newpass2" autocomplete="new-password">
+      </label>
+      <button class="primary" id="btn-setup" style="width:100%">Verify &amp; save connection</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EDITOR ============ -->
+<div id="view-editor" class="hidden">
+  <header>
+    <div class="wrap row">
+      <h1>Portfolio editor</h1>
+      <span class="mono" id="conn-line"></span>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <span class="mono hidden" id="dirty-dot">● Unsaved changes</span>
+        <button class="primary" id="btn-save">Save &amp; publish</button>
+        <button class="quiet" id="btn-lock">Lock</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <nav class="tabs">
+      <button data-tab="projects" class="active">Projects</button>
+      <button data-tab="skills">Skills</button>
+      <button data-tab="tools">Tools</button>
+      <button data-tab="meta">Site details</button>
+    </nav>
+
+    <section id="tab-projects"></section>
+    <section id="tab-skills" class="hidden"></section>
+    <section id="tab-tools" class="hidden"></section>
+    <section id="tab-meta" class="hidden"></section>
+    <div style="height:4rem"></div>
+  </main>
+</div>
+
+<div id="toast" role="status"></div>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const STORE_KEY = "portfolio-editor-v1";
+  const DATA_PATH = "data/data.json";
+  const ART_TYPES = ["Report","Drawing","Poster","Code","Photo","Video"];
+
+  let cfg = null;        // {owner, repo, branch}
+  let token = null;      // decrypted, memory only
+  let data = null;       // the JSON content
+  let sha = null;        // current blob sha on GitHub
+  let dirty = false;
+  let editing = { kind: null, id: null }; // open editor form
+
+  /* ---------- toast & dirty state ---------- */
+  let toastTimer;
+  function toast(msg, isErr) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.className = "show" + (isErr ? " err" : "");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.className = "", 3500);
+  }
+  function setDirty(v) {
+    dirty = v;
+    $("dirty-dot").classList.toggle("hidden", !v);
+  }
+  window.addEventListener("beforeunload", (e) => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+
+  /* ---------- crypto: encrypt token with password ---------- */
+  const b64 = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf)));
+  const unb64 = (str) => Uint8Array.from(atob(str), c => c.charCodeAt(0));
+
+  async function deriveKey(password, salt) {
+    const raw = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
+    return crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt, iterations: 310000, hash: "SHA-256" },
+      raw, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
+    );
+  }
+  async function encryptToken(tok, password) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt);
+    const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(tok));
+    return { salt: b64(salt), iv: b64(iv), ct: b64(ct) };
+  }
+  async function decryptToken(blob, password) {
+    const key = await deriveKey(password, unb64(blob.salt));
+    const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(blob.iv) }, key, unb64(blob.ct));
+    return new TextDecoder().decode(pt);
+  }
+
+  /* ---------- GitHub API ---------- */
+  function apiUrl(path) { return "https://api.github.com/repos/" + cfg.owner + "/" + cfg.repo + path; }
+  function headers() {
+    return {
+      "Authorization": "Bearer " + token,
+      "Accept": "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28"
+    };
+  }
+  function utf8ToB64(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = "";
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(bin);
+  }
+  function b64ToUtf8(str) {
+    return new TextDecoder().decode(Uint8Array.from(atob(str.replace(/\n/g, "")), c => c.charCodeAt(0)));
+  }
+  async function fetchData() {
+    const res = await fetch(apiUrl("/contents/" + DATA_PATH + "?ref=" + encodeURIComponent(cfg.branch)), { headers: headers() });
+    if (res.status === 401 || res.status === 403) throw new Error("GitHub rejected the token. It may have expired — reset the connection and create a new one.");
+    if (res.status === 404) throw new Error("Could not find " + DATA_PATH + " in " + cfg.owner + "/" + cfg.repo + ". Check the repository name and that the file exists.");
+    if (!res.ok) throw new Error("GitHub returned " + res.status + " while loading data.");
+    const json = await res.json();
+    sha = json.sha;
+    data = JSON.parse(b64ToUtf8(json.content));
+    data.projects = data.projects || []; data.skills = data.skills || []; data.tools = data.tools || []; data.meta = data.meta || {};
+  }
+  async function saveData() {
+    data.meta.updated = new Date().toISOString().slice(0, 10);
+    const body = {
+      message: "Update portfolio content via editor",
+      content: utf8ToB64(JSON.stringify(data, null, 2)),
+      sha: sha,
+      branch: cfg.branch
+    };
+    const res = await fetch(apiUrl("/contents/" + DATA_PATH), { method: "PUT", headers: headers(), body: JSON.stringify(body) });
+    if (res.status === 409) throw new Error("Save conflict: the file changed on GitHub since it was loaded. Lock and unlock the editor to reload, then re-apply your change.");
+    if (res.status === 401 || res.status === 403) throw new Error("GitHub rejected the token — it may have expired.");
+    if (!res.ok) throw new Error("GitHub returned " + res.status + " while saving.");
+    const json = await res.json();
+    sha = json.content.sha;
+  }
+  function fileToB64(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result).split(",")[1]);
+      r.onerror = () => reject(new Error("Could not read the file"));
+      r.readAsDataURL(file);
+    });
+  }
+  async function uploadArtefactFile(file) {
+    const clean = file.name.replace(/[^A-Za-z0-9._-]/g, "-");
+    const content = await fileToB64(file);
+    const put = (path) => fetch(apiUrl("/contents/" + path), {
+      method: "PUT", headers: headers(),
+      body: JSON.stringify({ message: "Add artefact " + clean, content, branch: cfg.branch })
+    });
+    let path = "artefacts/" + clean;
+    let res = await put(path);
+    if (res.status === 422) { // a file with this name already exists — keep both
+      path = "artefacts/" + Date.now().toString(36) + "-" + clean;
+      res = await put(path);
+    }
+    if (res.status === 401 || res.status === 403) throw new Error("GitHub rejected the token — it may have expired.");
+    if (!res.ok) throw new Error("GitHub returned " + res.status + " while uploading the file.");
+    return path;
+  }
+
+  /* ---------- login flow ---------- */
+  function stored() { try { return JSON.parse(localStorage.getItem(STORE_KEY)); } catch { return null; } }
+  function loginMsg(text, ok) { $("login-msg").innerHTML = text ? '<div class="msg ' + (ok ? "ok" : "err") + '">' + esc(text) + "</div>" : ""; }
+
+  function initLogin() {
+    const s = stored();
+    if (s && s.enc) {
+      $("login-form").classList.remove("hidden");
+      $("setup-form").classList.add("hidden");
+      $("login-title").textContent = "Editor login";
+      $("login-sub").textContent = "Connected to " + s.owner + "/" + s.repo + ". Enter your password to unlock.";
+    } else {
+      $("login-form").classList.add("hidden");
+      $("setup-form").classList.remove("hidden");
+      $("login-title").textContent = "First-time setup";
+      $("login-sub").textContent = "Connect the editor to your repository. This is done once per device.";
+    }
+  }
+
+  $("btn-show-reset").addEventListener("click", () => {
+    if (confirm("Reset the connection on this device? You will need your GitHub token to set it up again.")) {
+      localStorage.removeItem(STORE_KEY);
+      loginMsg("");
+      initLogin();
+    }
+  });
+
+  $("btn-setup").addEventListener("click", async () => {
+    const owner = $("in-owner").value.trim(), repo = $("in-repo").value.trim(), branch = $("in-branch").value.trim() || "main";
+    const tok = $("in-token").value.trim(), p1 = $("in-newpass").value, p2 = $("in-newpass2").value;
+    if (!owner || !repo || !tok) return loginMsg("Fill in the username, repository and token.");
+    if (p1.length < 6) return loginMsg("Choose a password of at least 6 characters.");
+    if (p1 !== p2) return loginMsg("The two passwords don't match.");
+    loginMsg("Verifying with GitHub…", true);
+    cfg = { owner, repo, branch }; token = tok;
+    try {
+      await fetchData();
+      const enc = await encryptToken(tok, p1);
+      localStorage.setItem(STORE_KEY, JSON.stringify({ owner, repo, branch, enc }));
+      enterEditor();
+    } catch (e) {
+      loginMsg(e.message);
+    }
+  });
+
+  $("btn-unlock").addEventListener("click", unlock);
+  $("in-password").addEventListener("keydown", (e) => { if (e.key === "Enter") unlock(); });
+  async function unlock() {
+    const s = stored();
+    if (!s) return initLogin();
+    loginMsg("Unlocking…", true);
+    try {
+      token = await decryptToken(s.enc, $("in-password").value);
+    } catch {
+      return loginMsg("Wrong password.");
+    }
+    cfg = { owner: s.owner, repo: s.repo, branch: s.branch };
+    try {
+      await fetchData();
+      enterEditor();
+    } catch (e) {
+      loginMsg(e.message);
+    }
+  }
+
+  $("btn-lock").addEventListener("click", () => {
+    if (dirty && !confirm("You have unsaved changes that will be lost. Lock anyway?")) return;
+    token = null; data = null; sha = null; setDirty(false);
+    $("in-password").value = "";
+    $("view-editor").classList.add("hidden");
+    $("view-login").classList.remove("hidden");
+    loginMsg("");
+    initLogin();
+  });
+
+  function enterEditor() {
+    loginMsg("");
+    $("in-token").value = ""; $("in-newpass").value = ""; $("in-newpass2").value = ""; $("in-password").value = "";
+    $("view-login").classList.add("hidden");
+    $("view-editor").classList.remove("hidden");
+    $("conn-line").textContent = cfg.owner + "/" + cfg.repo + " · " + cfg.branch;
+    setDirty(false);
+    editing = { kind: null, id: null };
+    renderAll();
+  }
+
+  /* ---------- save ---------- */
+  $("btn-save").addEventListener("click", async () => {
+    if (editing.kind) return toast("Finish or cancel the open form first", true);
+    $("btn-save").disabled = true;
+    $("btn-save").textContent = "Saving…";
+    try {
+      await saveData();
+      setDirty(false);
+      toast("Saved — the site will republish in about a minute");
+    } catch (e) {
+      toast(e.message, true);
+    } finally {
+      $("btn-save").disabled = false;
+      $("btn-save").textContent = "Save & publish";
+    }
+  });
+
+  /* ---------- tabs ---------- */
+  document.querySelectorAll("nav.tabs button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (editing.kind && !confirm("Discard the open form?")) return;
+      editing = { kind: null, id: null };
+      document.querySelectorAll("nav.tabs button").forEach(b => b.classList.toggle("active", b === btn));
+      ["projects","skills","tools","meta"].forEach(t => $("tab-" + t).classList.toggle("hidden", t !== btn.dataset.tab));
+      renderAll();
+    });
+  });
+
+  /* ---------- helpers ---------- */
+  const newId = (prefix) => prefix + "-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const fieldRow = (id, label, value, ph) =>
+    '<label><span class="lbl">' + esc(label) + '</span><input type="text" id="' + id + '" value="' + esc(value ?? "") + '" placeholder="' + esc(ph || "") + '"></label>';
+  const areaRow = (id, label, value) =>
+    '<label><span class="lbl">' + esc(label) + '</span><textarea id="' + id + '">' + esc(value ?? "") + "</textarea></label>";
+  function selectRow(id, label, value, options) {
+    return '<label><span class="lbl">' + esc(label) + '</span><select id="' + id + '">' +
+      options.map(o => '<option value="' + esc(o) + '"' + (o === value ? " selected" : "") + ">" + esc(o) + "</option>").join("") +
+      "</select></label>";
+  }
+
+  /* ============================================================
+     PROJECTS
+  ============================================================ */
+  function renderProjects() {
+    const host = $("tab-projects");
+    if (editing.kind === "project") return renderProjectForm(host);
+    const rows = data.projects.map(p => {
+      const bits = [p.category, p.yearOfStudy ? "Year " + p.yearOfStudy : "", p.status].filter(Boolean).join(" · ");
+      return '<div class="rowitem"><div><div class="nm">' + esc(p.name) + (p.featured ? ' <span class="mono" style="color:var(--red)">★ featured</span>' : "") + '</div>' +
+        '<div class="sub">' + esc(bits) + "</div></div>" +
+        '<div class="btns"><button data-edit="' + p.id + '">Edit</button><button class="danger" data-del="' + p.id + '">Delete</button></div></div>';
+    }).join("");
+    host.innerHTML = '<div class="section-head"><h2>Projects</h2><button class="primary" id="btn-add-project">Add project</button></div>' +
+      (rows || '<p class="empty">No projects yet. Add your first one.</p>');
+    $("btn-add-project").addEventListener("click", () => { editing = { kind: "project", id: null }; renderProjects(); });
+    host.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => { editing = { kind: "project", id: b.dataset.edit }; renderProjects(); }));
+    host.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
+      const p = data.projects.find(x => x.id === b.dataset.del);
+      if (confirm('Delete "' + p.name + '"? This also removes its artefact links.')) {
+        data.projects = data.projects.filter(x => x.id !== p.id);
+        setDirty(true); renderProjects(); toast("Project deleted — remember to Save & publish");
+      }
+    }));
+  }
+
+  function renderProjectForm(host) {
+    const p = data.projects.find(x => x.id === editing.id) || {
+      id: null, name: "", tagline: "", description: "", category: "", type: "", status: "",
+      yearOfStudy: "", role: "", outcome: "", featured: false, skillIds: [], toolIds: [], artefacts: []
+    };
+    const checkgrid = (list, chosen, name) => list.length
+      ? '<div class="checkgrid">' + list.map(x =>
+          '<label><input type="checkbox" name="' + name + '" value="' + esc(x.id) + '"' + (chosen.includes(x.id) ? " checked" : "") + ">" + esc(x.name) + "</label>").join("") + "</div>"
+      : '<p class="sub" style="color:var(--graphite)">None yet — add some in the ' + name + ' tab first.</p>';
+
+    host.innerHTML = '<div class="editor"><h3>' + (p.id ? "Edit project" : "New project") + "</h3>" +
+      fieldRow("f-name", "Project name *", p.name) +
+      fieldRow("f-tagline", "Tagline", p.tagline, "One line that sells the project") +
+      areaRow("f-description", "Description", p.description) +
+      '<div class="grid3">' +
+        fieldRow("f-category", "Category", p.category, "e.g. Structural") +
+        fieldRow("f-type", "Type", p.type, "Coursework / Personal / Team") +
+        selectRow("f-status", "Status", p.status || "Complete", ["Complete","Ongoing","Paused","Concept"]) +
+      "</div>" +
+      '<div class="grid2">' +
+        fieldRow("f-year", "Year of study", p.yearOfStudy, "e.g. 2") +
+        fieldRow("f-role", "Your role", p.role) +
+      "</div>" +
+      areaRow("f-outcome", "Outcome", p.outcome) +
+      '<div class="checkline"><input type="checkbox" id="f-featured"' + (p.featured ? " checked" : "") + '><span class="lbl" style="margin:0">Featured project (shown first, with a stamp)</span></div>' +
+      '<label><span class="lbl">Skills used</span>' + checkgrid(data.skills, p.skillIds || [], "skills") + "</label>" +
+      '<label><span class="lbl">Tools used</span>' + checkgrid(data.tools, p.toolIds || [], "tools") + "</label>" +
+      '<span class="lbl">Artefacts (evidence of the work — upload the file, or paste a link for external things like code repositories)</span>' +
+      '<div id="art-list"></div>' +
+      '<input type="file" id="art-file" class="hidden">' +
+      '<button id="btn-add-art" class="quiet" style="margin-top:.3rem">+ Add artefact</button>' +
+      '<div class="actions"><button class="primary" id="btn-form-save">' + (p.id ? "Apply changes" : "Add project") + '</button>' +
+      '<button id="btn-form-cancel">Cancel</button></div></div>';
+
+    // artefact repeater
+    let arts = (p.artefacts || []).map(a => ({ ...a }));
+    function drawArts() {
+      $("art-list").innerHTML = arts.map((a, i) =>
+        '<div class="art-row">' +
+        '<input type="text" data-af="title" data-i="' + i + '" placeholder="Title" value="' + esc(a.title) + '">' +
+        '<input type="text" data-af="url" data-i="' + i + '" placeholder="https://…" value="' + esc(a.url) + '">' +
+        '<select data-af="type" data-i="' + i + '">' + ART_TYPES.map(t => '<option' + (t === a.type ? " selected" : "") + ">" + t + "</option>").join("") + "</select>" +
+        '<button class="quiet" data-artup="' + i + '">Upload</button>' +
+        '<button class="danger" data-artdel="' + i + '">✕</button></div>').join("") ||
+        '<p class="sub" style="color:var(--graphite);padding:.3rem 0">No artefacts yet.</p>';
+      $("art-list").querySelectorAll("[data-af]").forEach(el =>
+        el.addEventListener("input", () => { arts[+el.dataset.i][el.dataset.af] = el.value; }));
+      $("art-list").querySelectorAll("[data-artdel]").forEach(b =>
+        b.addEventListener("click", () => { arts.splice(+b.dataset.artdel, 1); drawArts(); }));
+      $("art-list").querySelectorAll("[data-artup]").forEach(b =>
+        b.addEventListener("click", () => { uploadIdx = +b.dataset.artup; $("art-file").click(); }));
+    }
+    let uploadIdx = null;
+    drawArts();
+    $("btn-add-art").addEventListener("click", () => { arts.push({ title: "", url: "", type: "Report" }); drawArts(); });
+    $("art-file").addEventListener("change", async () => {
+      const file = $("art-file").files[0];
+      $("art-file").value = "";
+      if (!file || uploadIdx === null) return;
+      if (file.size > 25 * 1024 * 1024) return toast("Files must be under 25 MB — paste a link for larger files", true);
+      const i = uploadIdx; uploadIdx = null;
+      toast("Uploading " + file.name + "…");
+      try {
+        const path = await uploadArtefactFile(file);
+        arts[i].url = path;
+        if (!arts[i].title.trim()) arts[i].title = file.name.replace(/\.[^.]+$/, "");
+        drawArts();
+        toast("Uploaded — the file is now in the repository's artefacts folder");
+      } catch (e) {
+        toast(e.message, true);
+      }
+    });
+
+    $("btn-form-cancel").addEventListener("click", () => { editing = { kind: null, id: null }; renderProjects(); });
+    $("btn-form-save").addEventListener("click", () => {
+      const name = $("f-name").value.trim();
+      if (!name) return toast("The project needs a name", true);
+      const checked = (n) => [...host.querySelectorAll('input[name="' + n + '"]:checked')].map(c => c.value);
+      const obj = {
+        id: p.id || newId("p"),
+        name,
+        tagline: $("f-tagline").value.trim(),
+        description: $("f-description").value.trim(),
+        category: $("f-category").value.trim(),
+        type: $("f-type").value.trim(),
+        status: $("f-status").value,
+        yearOfStudy: parseInt($("f-year").value, 10) || "",
+        role: $("f-role").value.trim(),
+        outcome: $("f-outcome").value.trim(),
+        featured: $("f-featured").checked,
+        skillIds: checked("skills"),
+        toolIds: checked("tools"),
+        artefacts: arts.filter(a => a.title.trim() || a.url.trim())
+      };
+      if (p.id) {
+        data.projects = data.projects.map(x => x.id === p.id ? obj : x);
+      } else {
+        data.projects.push(obj);
+      }
+      setDirty(true);
+      editing = { kind: null, id: null };
+      renderProjects();
+      toast(p.id ? "Project updated — remember to Save & publish" : "Project added — remember to Save & publish");
+    });
+  }
+
+  /* ============================================================
+     SKILLS & TOOLS (shared pattern)
+  ============================================================ */
+  function renderCatalogue(kind) {
+    // kind: "skills" | "tools"
+    const host = $("tab-" + kind);
+    const isSkill = kind === "skills";
+    const list = data[kind];
+    const label = isSkill ? "Skill" : "Tool";
+    const idField = isSkill ? "skillIds" : "toolIds";
+    const subField = isSkill ? "category" : "type";
+
+    if (editing.kind === kind) return renderCatalogueForm(host, kind);
+
+    const usageCount = (id) => data.projects.filter(p => (p[idField] || []).includes(id)).length;
+    const rows = list.map(x => {
+      const uses = usageCount(x.id);
+      return '<div class="rowitem"><div><div class="nm">' + esc(x.name) + '</div>' +
+        '<div class="sub">' + esc([x[subField], x.proficiency].filter(Boolean).join(" · ")) +
+        (uses ? " · used in " + uses + " project" + (uses > 1 ? "s" : "") : "") + "</div></div>" +
+        '<div class="btns"><button data-edit="' + x.id + '">Edit</button><button class="danger" data-del="' + x.id + '">Delete</button></div></div>';
+    }).join("");
+
+    host.innerHTML = '<div class="section-head"><h2>' + label + 's</h2><button class="primary" id="btn-add-' + kind + '">Add ' + label.toLowerCase() + "</button></div>" +
+      (rows || '<p class="empty">Nothing here yet.</p>');
+
+    $("btn-add-" + kind).addEventListener("click", () => { editing = { kind, id: null }; renderCatalogue(kind); });
+    host.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => { editing = { kind, id: b.dataset.edit }; renderCatalogue(kind); }));
+    host.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
+      const x = list.find(i => i.id === b.dataset.del);
+      const uses = usageCount(x.id);
+      const warn = uses ? ' It is linked to ' + uses + ' project' + (uses > 1 ? "s" : "") + '; the link will be removed.' : "";
+      if (confirm('Delete "' + x.name + '"?' + warn)) {
+        data[kind] = list.filter(i => i.id !== x.id);
+        data.projects.forEach(p => { p[idField] = (p[idField] || []).filter(id => id !== x.id); });
+        setDirty(true); renderCatalogue(kind); toast(label + " deleted — remember to Save & publish");
+      }
+    }));
+  }
+
+  function renderCatalogueForm(host, kind) {
+    const isSkill = kind === "skills";
+    const label = isSkill ? "skill" : "tool";
+    const subLabel = isSkill ? "Category" : "Type";
+    const subPh = isSkill ? "e.g. Analysis, Software, Communication" : "e.g. CAD, Simulation, Language";
+    const x = data[kind].find(i => i.id === editing.id) || { id: null, name: "", proficiency: "Intermediate" };
+
+    host.innerHTML = '<div class="editor"><h3>' + (x.id ? "Edit " : "New ") + label + "</h3>" +
+      fieldRow("c-name", "Name *", x.name) +
+      '<div class="grid2">' +
+        fieldRow("c-sub", subLabel, x[isSkill ? "category" : "type"], subPh) +
+        selectRow("c-prof", "Proficiency", x.proficiency || "Intermediate", ["Beginner","Intermediate","Advanced","Expert"]) +
+      "</div>" +
+      '<div class="actions"><button class="primary" id="btn-cat-save">' + (x.id ? "Apply changes" : "Add " + label) + '</button>' +
+      '<button id="btn-cat-cancel">Cancel</button></div></div>';
+
+    $("btn-cat-cancel").addEventListener("click", () => { editing = { kind: null, id: null }; renderCatalogue(kind); });
+    $("btn-cat-save").addEventListener("click", () => {
+      const name = $("c-name").value.trim();
+      if (!name) return toast("A name is required", true);
+      const obj = {
+        id: x.id || newId(isSkill ? "s" : "t"),
+        name,
+        [isSkill ? "category" : "type"]: $("c-sub").value.trim(),
+        proficiency: $("c-prof").value
+      };
+      if (x.id) data[kind] = data[kind].map(i => i.id === x.id ? obj : i);
+      else data[kind].push(obj);
+      setDirty(true);
+      editing = { kind: null, id: null };
+      renderCatalogue(kind);
+      toast("Saved to the list — remember to Save & publish");
+    });
+  }
+
+  /* ============================================================
+     SITE DETAILS
+  ============================================================ */
+  function renderMeta() {
+    const host = $("tab-meta");
+    const m = data.meta;
+    host.innerHTML = '<div class="section-head"><h2>Site details</h2></div><div class="editor" style="margin-top:0">' +
+      fieldRow("m-name", "Your name", m.name) +
+      fieldRow("m-title", "Register title", m.title, "e.g. Engineering Portfolio") +
+      areaRow("m-intro", "Introduction", m.intro) +
+      fieldRow("m-email", "Contact email", m.email) +
+      '<div class="actions"><button class="primary" id="btn-meta-apply">Apply changes</button></div></div>';
+    $("btn-meta-apply").addEventListener("click", () => {
+      m.name = $("m-name").value.trim();
+      m.title = $("m-title").value.trim();
+      m.intro = $("m-intro").value.trim();
+      m.email = $("m-email").value.trim();
+      setDirty(true);
+      toast("Details applied — remember to Save & publish");
+    });
+  }
+
+  function renderAll() {
+    renderProjects();
+    renderCatalogue("skills");
+    renderCatalogue("tools");
+    renderMeta();
+  }
+
+  initLogin();
+})();
+</script>
+</body>
+</html>
