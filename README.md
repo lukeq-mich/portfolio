@@ -11,9 +11,10 @@ A self-contained project portfolio, hosted on GitHub Pages. No database, no serv
 | `index.html` | The public portfolio — an editorial "drawing register" of projects, each listing the skills applied, tools used, and artefacts produced. |
 | `admin.html` | A private, password-locked editor with full create/read/update/delete for projects, skills, tools, artefact links, and site details. |
 | `data/data.json` | The single source of truth for all content. |
-| `.github/workflows/deploy.yml` | Deploys the site to GitHub Pages on every push to `main`. |
+| `.github/workflows/deploy.yml` | Deploys the site to GitHub Pages on every push to `main`, injecting SEO and link-preview metadata from `data.json` at publish time. |
+| `favicon.svg` | Browser-tab icon. |
 
-Edits made in the editor are committed straight back to `data/data.json` through the GitHub API, which triggers the deploy workflow — changes are live in about a minute.
+Edits made in the editor are committed straight back to `data/data.json` through the GitHub API, which triggers the deploy workflow — changes are live in about a minute. Site-wide customisation (introduction, SEO description, accent colour) is edited the same way, from the editor's Site details tab.
 
 ## Content model
 
