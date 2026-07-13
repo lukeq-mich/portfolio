@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#FFFFFF">
 <meta name="robots" content="noindex, nofollow">
 <title>Editor — Portfolio</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -706,12 +707,20 @@
       fieldRow("m-title", "Register title", m.title, "e.g. Engineering Portfolio") +
       areaRow("m-intro", "Introduction", m.intro) +
       fieldRow("m-email", "Contact email", m.email) +
+      areaRow("m-seo", "SEO description — shown in search results and link previews (falls back to the introduction if empty)", m.seoDescription) +
+      '<label><span class="lbl">Accent colour — used for stamps, codes, and highlights on the site</span>' +
+      '<span style="display:flex;align-items:center;gap:.8rem">' +
+      '<input type="color" id="m-accent" value="' + esc(/^#[0-9A-Fa-f]{6}$/.test(m.accent || "") ? m.accent : "#A02A1C") + '" style="width:5rem;height:2.6rem;padding:.15rem;cursor:pointer">' +
+      '<button class="quiet" id="btn-accent-reset">Reset to default red</button></span></label>' +
       '<div class="actions"><button class="primary" id="btn-meta-apply">Apply changes</button></div></div>';
+    $("btn-accent-reset").addEventListener("click", () => { $("m-accent").value = "#A02A1C"; });
     $("btn-meta-apply").addEventListener("click", () => {
       m.name = $("m-name").value.trim();
       m.title = $("m-title").value.trim();
       m.intro = $("m-intro").value.trim();
       m.email = $("m-email").value.trim();
+      m.seoDescription = $("m-seo").value.trim();
+      m.accent = $("m-accent").value;
       setDirty(true);
       toast("Details applied — remember to Save & publish");
     });
