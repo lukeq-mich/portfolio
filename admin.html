@@ -26,7 +26,14 @@
   button.danger{border-color:var(--red);color:var(--red)}
   button.danger:hover{background:var(--red);color:var(--paper)}
   button.quiet{border-color:var(--rule);color:var(--graphite)}
-  button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+  button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a.btnlink:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+  a.btnlink{display:inline-block;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;text-decoration:none;border:1px solid var(--rule);border-radius:2px;padding:.55rem 1rem;color:var(--graphite)}
+  a.btnlink:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .dropzone{border:1.5px dashed var(--rule);border-radius:2px;padding:1.1rem;text-align:center;color:var(--graphite);font-family:var(--font-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin:.4rem 0 1rem;background:var(--field)}
+  .dropzone.drag,.dropzone:hover{border-color:var(--red);color:var(--red)}
+  .cover-preview{display:flex;align-items:center;gap:1rem;margin:.4rem 0 1rem}
+  .cover-preview img{width:130px;height:86px;object-fit:cover;border:1px solid var(--rule);border-radius:2px}
+  .cover-preview .pth{font-family:var(--font-mono);font-size:.68rem;color:var(--graphite);word-break:break-all}
   input,textarea,select{
     width:100%;font-family:var(--font-body);font-size:1rem;color:var(--ink);
     background:var(--field);border:1px solid var(--rule);border-radius:2px;padding:.6rem .7rem;
@@ -125,6 +132,7 @@
       </label>
       <button class="primary" id="btn-setup" style="width:100%">Verify &amp; save connection</button>
     </div>
+    <p style="margin-top:1.4rem;text-align:center"><a class="btnlink" href="index.html">← Back to the site</a></p>
   </div>
 </div>
 
@@ -137,6 +145,7 @@
       <div style="display:flex;gap:.5rem;align-items:center">
         <span class="mono hidden" id="dirty-dot">● Unsaved changes</span>
         <button class="primary" id="btn-save">Save &amp; publish</button>
+        <a class="btnlink" href="index.html">View site</a>
         <button class="quiet" id="btn-lock">Lock</button>
       </div>
     </div>
@@ -168,6 +177,14 @@
   const STORE_KEY = "portfolio-editor-v1";
   const DATA_PATH = "data/data.json";
   const ART_TYPES = ["Report","Drawing","Poster","Code","Photo","Video"];
+  function extType(name) {
+    const e = (name.split(".").pop() || "").toLowerCase();
+    if (["png","jpg","jpeg","gif","webp","heic","bmp"].includes(e)) return "Photo";
+    if (["mp4","mov","webm","avi","mkv"].includes(e)) return "Video";
+    if (["dwg","dxf","svg","step","stp","iges","igs"].includes(e)) return "Drawing";
+    if (["zip","py","js","ts","c","cpp","h","ino","m","ipynb","java","rs"].includes(e)) return "Code";
+    return "Report";
+  }
 
   let cfg = null;        // {owner, repo, branch}
   let token = null;      // decrypted, memory only
@@ -266,17 +283,17 @@
       r.readAsDataURL(file);
     });
   }
-  async function uploadArtefactFile(file) {
+  async function uploadRepoFile(file, folder) {
     const clean = file.name.replace(/[^A-Za-z0-9._-]/g, "-");
     const content = await fileToB64(file);
     const put = (path) => fetch(apiUrl("/contents/" + path), {
       method: "PUT", headers: headers(),
-      body: JSON.stringify({ message: "Add artefact " + clean, content, branch: cfg.branch })
+      body: JSON.stringify({ message: "Add " + folder.replace(/s$/, "").replace("-", " ") + " " + clean, content, branch: cfg.branch })
     });
-    let path = "artefacts/" + clean;
+    let path = folder + "/" + clean;
     let res = await put(path);
     if (res.status === 422) { // a file with this name already exists — keep both
-      path = "artefacts/" + Date.now().toString(36) + "-" + clean;
+      path = folder + "/" + Date.now().toString(36) + "-" + clean;
       res = await put(path);
     }
     if (res.status === 401 || res.status === 403) throw new Error("GitHub rejected the token — it may have expired.");
@@ -438,7 +455,7 @@
   function renderProjectForm(host) {
     const p = data.projects.find(x => x.id === editing.id) || {
       id: null, name: "", tagline: "", description: "", category: "", type: "", status: "",
-      yearOfStudy: "", role: "", outcome: "", featured: false, skillIds: [], toolIds: [], artefacts: []
+      yearOfStudy: "", role: "", outcome: "", featured: false, coverImage: "", skillIds: [], toolIds: [], artefacts: []
     };
     const checkgrid = (list, chosen, name) => list.length
       ? '<div class="checkgrid">' + list.map(x =>
@@ -460,12 +477,15 @@
       "</div>" +
       areaRow("f-outcome", "Outcome", p.outcome) +
       '<div class="checkline"><input type="checkbox" id="f-featured"' + (p.featured ? " checked" : "") + '><span class="lbl" style="margin:0">Featured project (shown first, with a stamp)</span></div>' +
+      '<span class="lbl">Cover image (shown at the top of the project on the site)</span>' +
+      '<div id="cover-zone"></div>' +
       '<label><span class="lbl">Skills used</span>' + checkgrid(data.skills, p.skillIds || [], "skills") + "</label>" +
       '<label><span class="lbl">Tools used</span>' + checkgrid(data.tools, p.toolIds || [], "tools") + "</label>" +
       '<span class="lbl">Artefacts (evidence of the work — upload the file, or paste a link for external things like code repositories)</span>' +
       '<div id="art-list"></div>' +
       '<input type="file" id="art-file" class="hidden">' +
-      '<button id="btn-add-art" class="quiet" style="margin-top:.3rem">+ Add artefact</button>' +
+      '<div class="dropzone" id="art-drop">Drop artefact files here, or click to browse</div>' +
+      '<button id="btn-add-art" class="quiet" style="margin-top:.3rem">+ Add link-only artefact</button>' +
       '<div class="actions"><button class="primary" id="btn-form-save">' + (p.id ? "Apply changes" : "Add project") + '</button>' +
       '<button id="btn-form-cancel">Cancel</button></div></div>';
 
@@ -490,15 +510,31 @@
     let uploadIdx = null;
     drawArts();
     $("btn-add-art").addEventListener("click", () => { arts.push({ title: "", url: "", type: "Report" }); drawArts(); });
+
+    async function addArtefactFromFile(file) {
+      if (file.size > 25 * 1024 * 1024) return toast(file.name + " is over 25 MB — paste a link instead", true);
+      const i = arts.push({ title: file.name.replace(/\.[^.]+$/, ""), url: "…uploading…", type: extType(file.name) }) - 1;
+      drawArts();
+      toast("Uploading " + file.name + "…");
+      try {
+        arts[i].url = await uploadRepoFile(file, "artefacts");
+        drawArts();
+        toast("Uploaded — the file is now in the repository's artefacts folder");
+      } catch (e) {
+        arts.splice(i, 1); drawArts();
+        toast(e.message, true);
+      }
+    }
     $("art-file").addEventListener("change", async () => {
       const file = $("art-file").files[0];
       $("art-file").value = "";
-      if (!file || uploadIdx === null) return;
+      if (!file) return;
+      if (uploadIdx === null) return addArtefactFromFile(file);
       if (file.size > 25 * 1024 * 1024) return toast("Files must be under 25 MB — paste a link for larger files", true);
       const i = uploadIdx; uploadIdx = null;
       toast("Uploading " + file.name + "…");
       try {
-        const path = await uploadArtefactFile(file);
+        const path = await uploadRepoFile(file, "artefacts");
         arts[i].url = path;
         if (!arts[i].title.trim()) arts[i].title = file.name.replace(/\.[^.]+$/, "");
         drawArts();
@@ -507,11 +543,51 @@
         toast(e.message, true);
       }
     });
+    const artZone = $("art-drop");
+    artZone.addEventListener("click", () => { uploadIdx = null; $("art-file").click(); });
+    artZone.addEventListener("dragover", (e) => { e.preventDefault(); artZone.classList.add("drag"); });
+    artZone.addEventListener("dragleave", () => artZone.classList.remove("drag"));
+    artZone.addEventListener("drop", (e) => {
+      e.preventDefault(); artZone.classList.remove("drag");
+      [...e.dataTransfer.files].forEach(f => addArtefactFromFile(f));
+    });
+
+    // cover image
+    let cover = p.coverImage || "";
+    async function handleCover(file) {
+      if (!file.type.startsWith("image/")) return toast("The cover must be an image file", true);
+      if (file.size > 25 * 1024 * 1024) return toast("Images must be under 25 MB", true);
+      toast("Uploading " + file.name + "…");
+      try {
+        cover = await uploadRepoFile(file, "cover-images");
+        drawCover();
+        toast("Cover image uploaded to the cover-images folder");
+      } catch (e) {
+        toast(e.message, true);
+      }
+    }
+    function drawCover() {
+      const z = $("cover-zone");
+      if (cover) {
+        z.innerHTML = '<div class="cover-preview"><img src="' + esc(cover) + '" alt="Cover preview"><div><div class="pth">' + esc(cover) + '</div><button class="quiet" id="btn-cover-remove" style="margin-top:.5rem">Remove cover</button></div></div>';
+        $("btn-cover-remove").addEventListener("click", () => { cover = ""; drawCover(); });
+      } else {
+        z.innerHTML = '<div class="dropzone" id="cover-drop">Drop an image here, or click to choose</div><input type="file" id="cover-file" class="hidden" accept="image/*">';
+        const cz = $("cover-drop"), cf = $("cover-file");
+        cz.addEventListener("click", () => cf.click());
+        cz.addEventListener("dragover", (e) => { e.preventDefault(); cz.classList.add("drag"); });
+        cz.addEventListener("dragleave", () => cz.classList.remove("drag"));
+        cz.addEventListener("drop", (e) => { e.preventDefault(); cz.classList.remove("drag"); if (e.dataTransfer.files[0]) handleCover(e.dataTransfer.files[0]); });
+        cf.addEventListener("change", () => { if (cf.files[0]) handleCover(cf.files[0]); cf.value = ""; });
+      }
+    }
+    drawCover();
 
     $("btn-form-cancel").addEventListener("click", () => { editing = { kind: null, id: null }; renderProjects(); });
     $("btn-form-save").addEventListener("click", () => {
       const name = $("f-name").value.trim();
       if (!name) return toast("The project needs a name", true);
+      if (arts.some(a => a.url === "…uploading…")) return toast("Wait for the artefact upload to finish", true);
       const checked = (n) => [...host.querySelectorAll('input[name="' + n + '"]:checked')].map(c => c.value);
       const obj = {
         id: p.id || newId("p"),
@@ -525,6 +601,7 @@
         role: $("f-role").value.trim(),
         outcome: $("f-outcome").value.trim(),
         featured: $("f-featured").checked,
+        coverImage: cover,
         skillIds: checked("skills"),
         toolIds: checked("tools"),
         artefacts: arts.filter(a => a.title.trim() || a.url.trim())
