@@ -2,7 +2,7 @@
 
 A self-contained project portfolio, hosted on GitHub Pages. No database, no server, no build step — all content lives in a single JSON file in this repository, and the site republishes itself automatically on every change.
 
-**Live site:** `https://YOUR-USERNAME.github.io/portfolio/`
+**Live site:** `https://lukeq-mich.github.io/portfolio/`
 
 ## How it works
 
