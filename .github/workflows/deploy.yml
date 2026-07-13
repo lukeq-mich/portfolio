@@ -33,6 +33,33 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
+      - name: Inject SEO metadata from data.json
+        run: |
+          python3 - <<'EOF'
+          import json, html
+          d = json.load(open('data/data.json'))
+          m = d.get('meta', {})
+          site = "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          desc = (m.get('seoDescription') or m.get('intro') or '')[:200]
+          title = " — ".join(x for x in [m.get('name',''), m.get('title','')] if x) or "Portfolio"
+          cover = ""
+          for p in d.get('projects', []):
+              if p.get('coverImage'):
+                  cover = site + p['coverImage']
+                  break
+          s = open('index.html').read()
+          s = s.replace('__SEO_DESC__', html.escape(desc, quote=True))
+          s = s.replace('__SEO_TITLE__', html.escape(title, quote=True))
+          s = s.replace('__SEO_URL__', site)
+          if cover:
+              s = s.replace('__SEO_IMAGE__', cover).replace('__SEO_CARD__', 'summary_large_image')
+          else:
+              s = "\n".join(l for l in s.split("\n") if '__SEO_IMAGE__' not in l)
+              s = s.replace('__SEO_CARD__', 'summary')
+          open('index.html','w').write(s)
+          print("Injected:", title, "|", desc[:60])
+          EOF
+
       - name: Upload site files
         uses: actions/upload-pages-artifact@v3
         with:
