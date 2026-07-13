@@ -2,7 +2,7 @@
 
 A self-contained project portfolio, hosted on GitHub Pages. No database, no server, no build step — all content lives in a single JSON file in this repository, and the site republishes itself automatically on every change.
 
-**Live site:** `https://lukeq-mich.github.io/portfolio/`
+**Live site:** `https://YOUR-USERNAME.github.io/portfolio/`
 
 ## How it works
 
@@ -17,11 +17,11 @@ Edits made in the editor are committed straight back to `data/data.json` through
 
 ## Content model
 
-Projects, Skills, and Tools are separate records linked many-to-many: each project references the skills and tools it used by ID. Artefacts (reports, drawings, posters, code, photos, video) belong to projects; files are uploaded through the editor into the `artefacts/` folder, or linked externally, typed semantically and numbered on the site like drawing sheets.
+Projects, Skills, and Tools are separate records linked many-to-many: each project references the skills and tools it used by ID. Artefacts (reports, drawings, posters, code, photos, video) belong to projects; files are uploaded through the editor (drag-and-drop) into the `artefacts/` folder, or linked externally, typed semantically and numbered on the site like drawing sheets. Each project can also carry a cover image, uploaded the same way into the `cover-images/` folder.
 
 ## Editing
 
-The editor lives at `/admin.html` and is intentionally unlinked from the public site. It authenticates against GitHub with a fine-grained personal access token scoped to this repository only, encrypted locally with a password — the token never appears in this repository. 
+The editor lives at `/admin.html`, reachable from the small **Editor login** button in the site footer. It authenticates against GitHub with a fine-grained personal access token scoped to this repository only, encrypted locally with a password — the token never appears in this repository. Setup and daily use are covered step by step in [SETUP-GUIDE.md](SETUP-GUIDE.md).
 
 ---
 
