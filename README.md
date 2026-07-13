@@ -2,7 +2,7 @@
 
 A self-contained project portfolio, hosted on GitHub Pages. No database, no server, no build step — all content lives in a single JSON file in this repository, and the site republishes itself automatically on every change.
 
-**Live site:** `https://YOUR-USERNAME.github.io/portfolio/`
+**Live site:** `https://lukeq-mich.github.io/portfolio/`
 
 ## How it works
 
@@ -21,7 +21,7 @@ Projects, Skills, and Tools are separate records linked many-to-many: each proje
 
 ## Editing
 
-The editor lives at `/admin.html` and is intentionally unlinked from the public site. It authenticates against GitHub with a fine-grained personal access token scoped to this repository only, encrypted locally with a password — the token never appears in this repository. Setup and daily use are covered step by step in [SETUP-GUIDE.md](SETUP-GUIDE.md).
+The editor lives at `/admin.html` and is intentionally unlinked from the public site. It authenticates against GitHub with a fine-grained personal access token scoped to this repository only, encrypted locally with a password — the token never appears in this repository. 
 
 ---
 
