@@ -320,14 +320,16 @@
   }).join("");
 
   // Capability register
-  const regItem = (x, subLabel) =>
-    '<div class="reg-item"><div class="top"><span class="nm">' + esc(x.name) + '</span>' +
-    (x.proficiency ? '<span class="pf">' + esc(x.proficiency) + "</span>" : "") + "</div>" +
-    (x[subLabel] ? '<span class="ct">' + esc(x[subLabel]) + "</span>" : "") +
-    "</div>";
+  const regItem = (x) => {
+    const cats = Array.isArray(x.categories) ? x.categories.join(" · ") : (x.category || x.type || "");
+    return '<div class="reg-item"><div class="top"><span class="nm">' + esc(x.name) + '</span>' +
+      (x.proficiency ? '<span class="pf">' + esc(x.proficiency) + "</span>" : "") + "</div>" +
+      (cats ? '<span class="ct">' + esc(cats) + "</span>" : "") +
+      "</div>";
+  };
 
-  $("skills-list").innerHTML = skills.map(s => regItem(s, "category")).join("");
-  $("tools-list").innerHTML = tools.map(t => regItem(t, "type")).join("");
+  $("skills-list").innerHTML = skills.map(regItem).join("");
+  $("tools-list").innerHTML = tools.map(regItem).join("");
 })();
 </script>
 </body>
