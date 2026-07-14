@@ -253,7 +253,11 @@
   $("site-intro").textContent = meta.intro || "";
   $("issue-line").textContent = (meta.title || "Project register") + " · " + new Date().getFullYear();
   if (meta.updated) $("updated-line").textContent = "Rev. " + meta.updated;
-  if (meta.email) $("site-contact").innerHTML = '<a href="mailto:' + esc(meta.email) + '">' + esc(meta.email) + "</a>";
+  const contactBits = [];
+  if (meta.email) contactBits.push('<a href="mailto:' + esc(meta.email) + '">' + esc(meta.email) + '</a>');
+  if (meta.linkedin) contactBits.push('<a href="' + esc(meta.linkedin) + '" target="_blank" rel="noopener">LinkedIn</a>');
+  if (meta.resume) contactBits.push('<a href="' + esc(meta.resume) + '" target="_blank" rel="noopener">Résumé (PDF)</a>');
+  $("site-contact").innerHTML = contactBits.join(" · ");
 
   // Order: featured first, then most recent year of study
   const projects = (data.projects || []).slice().sort((a, b) =>
