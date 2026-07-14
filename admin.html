@@ -303,6 +303,42 @@
     if (!res.ok) throw new Error("GitHub returned " + res.status + " while uploading the file.");
     return path;
   }
+  function isRepoFile(u) {
+    return typeof u === "string" && /^(artefacts|cover-images)\//.test(u);
+  }
+  function referencedFiles(projects) {
+    const s = new Set();
+    (projects || []).forEach(p => {
+      if (isRepoFile(p.coverImage)) s.add(p.coverImage);
+      (p.artefacts || []).forEach(a => { if (isRepoFile(a.url)) s.add(a.url); });
+    });
+    return s;
+  }
+  async function deleteRepoFile(path) {
+    const info = await fetch(apiUrl("/contents/" + path) + "?ref=" + encodeURIComponent(cfg.branch), { headers: headers() });
+    if (info.status === 404) return; // already gone
+    if (!info.ok) throw new Error("Could not find " + path + " to delete (" + info.status + ")");
+    const meta = await info.json();
+    const res = await fetch(apiUrl("/contents/" + path), {
+      method: "DELETE", headers: headers(),
+      body: JSON.stringify({ message: "Remove " + path + " via editor", sha: meta.sha, branch: cfg.branch })
+    });
+    if (res.status === 401 || res.status === 403) throw new Error("GitHub rejected the token — it may have expired.");
+    if (!res.ok) throw new Error("GitHub returned " + res.status + " while deleting " + path);
+  }
+  let pendingFileDeletes = new Set();
+  async function purgePendingFiles() {
+    if (!pendingFileDeletes.size) return 0;
+    const stillUsed = referencedFiles(data.projects);
+    let n = 0;
+    for (const path of [...pendingFileDeletes]) {
+      if (stillUsed.has(path)) { pendingFileDeletes.delete(path); continue; }
+      await deleteRepoFile(path);
+      pendingFileDeletes.delete(path);
+      n++;
+    }
+    return n;
+  }
 
   /* ---------- login flow ---------- */
   function stored() { try { return JSON.parse(localStorage.getItem(STORE_KEY)); } catch { return null; } }
@@ -398,7 +434,8 @@
     try {
       await saveData();
       setDirty(false);
-      toast("Saved — the site will republish in about a minute");
+      const removed = await purgePendingFiles();
+      toast("Saved — the site will republish in about a minute" + (removed ? " · " + removed + " file" + (removed > 1 ? "s" : "") + " removed from the repository" : ""));
     } catch (e) {
       toast(e.message, true);
     } finally {
@@ -448,7 +485,9 @@
     host.querySelectorAll("[data-edit]").forEach(b => b.addEventListener("click", () => { editing = { kind: "project", id: b.dataset.edit }; renderProjects(); }));
     host.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
       const p = data.projects.find(x => x.id === b.dataset.del);
-      if (confirm('Delete "' + p.name + '"? This also removes its artefact links.')) {
+      if (confirm('Delete "' + p.name + '"? Its uploaded cover and artefact files will be removed from the repository when you publish.')) {
+        if (isRepoFile(p.coverImage)) pendingFileDeletes.add(p.coverImage);
+        (p.artefacts || []).forEach(a => { if (isRepoFile(a.url)) pendingFileDeletes.add(a.url); });
         data.projects = data.projects.filter(x => x.id !== p.id);
         setDirty(true); renderProjects(); toast("Project deleted — remember to Save & publish");
       }
@@ -494,6 +533,8 @@
 
     // artefact repeater
     let arts = (p.artefacts || []).map(a => ({ ...a }));
+    const sessionDeletes = new Set();
+    const queueDelete = (u) => { if (isRepoFile(u)) sessionDeletes.add(u); };
     function drawArts() {
       $("art-list").innerHTML = arts.map((a, i) =>
         '<div class="art-row">' +
@@ -506,7 +547,11 @@
       $("art-list").querySelectorAll("[data-af]").forEach(el =>
         el.addEventListener("input", () => { arts[+el.dataset.i][el.dataset.af] = el.value; }));
       $("art-list").querySelectorAll("[data-artdel]").forEach(b =>
-        b.addEventListener("click", () => { arts.splice(+b.dataset.artdel, 1); drawArts(); }));
+        b.addEventListener("click", () => {
+          const removed = arts[+b.dataset.artdel];
+          if (removed) queueDelete(removed.url);
+          arts.splice(+b.dataset.artdel, 1); drawArts();
+        }));
       $("art-list").querySelectorAll("[data-artup]").forEach(b =>
         b.addEventListener("click", () => { uploadIdx = +b.dataset.artup; $("art-file").click(); }));
     }
@@ -562,7 +607,10 @@
       if (file.size > 25 * 1024 * 1024) return toast("Images must be under 25 MB", true);
       toast("Uploading " + file.name + "…");
       try {
-        cover = await uploadRepoFile(file, "cover-images");
+        const prev = cover;
+        const uploaded = await uploadRepoFile(file, "cover-images");
+        if (prev !== uploaded) queueDelete(prev);
+        cover = uploaded;
         drawCover();
         toast("Cover image uploaded to the cover-images folder");
       } catch (e) {
@@ -573,7 +621,7 @@
       const z = $("cover-zone");
       if (cover) {
         z.innerHTML = '<div class="cover-preview"><img src="' + esc(cover) + '" alt="Cover preview"><div><div class="pth">' + esc(cover) + '</div><button class="quiet" id="btn-cover-remove" style="margin-top:.5rem">Remove cover</button></div></div>';
-        $("btn-cover-remove").addEventListener("click", () => { cover = ""; drawCover(); });
+        $("btn-cover-remove").addEventListener("click", () => { queueDelete(cover); cover = ""; drawCover(); });
       } else {
         z.innerHTML = '<div class="dropzone" id="cover-drop">Drop an image here, or click to choose</div><input type="file" id="cover-file" class="hidden" accept="image/*">';
         const cz = $("cover-drop"), cf = $("cover-file");
@@ -614,6 +662,7 @@
       } else {
         data.projects.push(obj);
       }
+      sessionDeletes.forEach(u => pendingFileDeletes.add(u));
       setDirty(true);
       editing = { kind: null, id: null };
       renderProjects();
