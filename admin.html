@@ -702,23 +702,56 @@
   function renderMeta() {
     const host = $("tab-meta");
     const m = data.meta;
+    let resumePath = m.resume || "";
     host.innerHTML = '<div class="section-head"><h2>Site details</h2></div><div class="editor" style="margin-top:0">' +
       fieldRow("m-name", "Your name", m.name) +
       fieldRow("m-title", "Register title", m.title, "e.g. Engineering Portfolio") +
       areaRow("m-intro", "Introduction", m.intro) +
       fieldRow("m-email", "Contact email", m.email) +
+      fieldRow("m-linkedin", "LinkedIn URL", m.linkedin, "https://www.linkedin.com/in/yourname") +
+      '<label><span class="lbl">Résumé / CV — upload a PDF to add a download link on the site</span><div id="resume-zone"></div></label>' +
       areaRow("m-seo", "SEO description — shown in search results and link previews (falls back to the introduction if empty)", m.seoDescription) +
       '<label><span class="lbl">Accent colour — used for stamps, codes, and highlights on the site</span>' +
       '<span style="display:flex;align-items:center;gap:.8rem">' +
       '<input type="color" id="m-accent" value="' + esc(/^#[0-9A-Fa-f]{6}$/.test(m.accent || "") ? m.accent : "#A02A1C") + '" style="width:5rem;height:2.6rem;padding:.15rem;cursor:pointer">' +
       '<button class="quiet" id="btn-accent-reset">Reset to default red</button></span></label>' +
       '<div class="actions"><button class="primary" id="btn-meta-apply">Apply changes</button></div></div>';
+    function drawResume() {
+      const z = $("resume-zone");
+      if (resumePath) {
+        z.innerHTML = '<div class="cover-preview"><div class="pth">' + esc(resumePath) + '</div><button class="quiet" id="btn-resume-remove" style="margin-top:.5rem">Remove résumé</button></div>';
+        $("btn-resume-remove").addEventListener("click", () => { resumePath = ""; drawResume(); });
+      } else {
+        z.innerHTML = '<div class="dropzone" id="resume-drop">Drop a PDF here, or click to choose</div><input type="file" id="resume-file" class="hidden" accept=".pdf,application/pdf">';
+        const rz = $("resume-drop"), rf = $("resume-file");
+        rz.addEventListener("click", () => rf.click());
+        rz.addEventListener("dragover", (e) => { e.preventDefault(); rz.classList.add("drag"); });
+        rz.addEventListener("dragleave", () => rz.classList.remove("drag"));
+        rz.addEventListener("drop", (e) => { e.preventDefault(); rz.classList.remove("drag"); if (e.dataTransfer.files[0]) handleResume(e.dataTransfer.files[0]); });
+        rf.addEventListener("change", () => { if (rf.files[0]) handleResume(rf.files[0]); rf.value = ""; });
+      }
+    }
+    async function handleResume(file) {
+      if (file.type !== "application/pdf" && !/\.pdf$/i.test(file.name)) return toast("The résumé must be a PDF file", true);
+      if (file.size > 25 * 1024 * 1024) return toast("Files must be under 25 MB", true);
+      toast("Uploading " + file.name + "…");
+      try {
+        resumePath = await uploadRepoFile(file, "resume");
+        drawResume();
+        toast("Résumé uploaded to the resume folder");
+      } catch (e) {
+        toast(e.message, true);
+      }
+    }
+    drawResume();
     $("btn-accent-reset").addEventListener("click", () => { $("m-accent").value = "#A02A1C"; });
     $("btn-meta-apply").addEventListener("click", () => {
       m.name = $("m-name").value.trim();
       m.title = $("m-title").value.trim();
       m.intro = $("m-intro").value.trim();
       m.email = $("m-email").value.trim();
+      m.linkedin = $("m-linkedin").value.trim();
+      m.resume = resumePath;
       m.seoDescription = $("m-seo").value.trim();
       m.accent = $("m-accent").value;
       setDirty(true);
