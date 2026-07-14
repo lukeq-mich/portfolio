@@ -6,7 +6,7 @@
     "email": "lukeq@umich",
     "updated": "2026-07-14",
     "seoDescription": "",
-    "accent": "#a02a1c"
+    "accent": "#0029cc"
   },
   "projects": [
     {
@@ -21,7 +21,7 @@
       "role": "Analysis lead in a team of four",
       "outcome": "Failure prediction within 8% of test result",
       "featured": true,
-      "coverImage": "",
+      "coverImage": "cover-images/MDT-logo-sheild.png",
       "skillIds": [
         "s-001",
         "s-002"
@@ -32,14 +32,9 @@
       ],
       "artefacts": [
         {
-          "title": "Final analysis report",
-          "url": "https://example.com/report.pdf",
+          "title": "SharePoint_hub_site_copilot_integration (1)",
+          "url": "artefacts/SharePoint_hub_site_copilot_integration--1-.pptx",
           "type": "Report"
-        },
-        {
-          "title": "FEA mesh study",
-          "url": "https://example.com/mesh.pdf",
-          "type": "Drawing"
         }
       ]
     },
