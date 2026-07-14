@@ -180,6 +180,12 @@
   const STORE_KEY = "portfolio-editor-v1";
   const DATA_PATH = "data/data.json";
   const ART_TYPES = ["Report","Drawing","Poster","Code","Photo","Video"];
+  // Fixed preset lists for the Category multi-select on Skills and Tools.
+  // Edit these arrays to change the available choices.
+  const CATEGORY_OPTIONS = {
+    skills: ["Design","Technical/Engineering","Analytical/Mathematical","Software/Programming","Laboratory/Practical","Project Management","Communication/Teamwork"],
+    tools:  ["CAD/Modelling","Simulation/Analysis","Programming Language","Software/Application","Lab Equipment","Hardware/Electronics","Method/Technique"]
+  };
   function extType(name) {
     const e = (name.split(".").pop() || "").toLowerCase();
     if (["png","jpg","jpeg","gif","webp","heic","bmp"].includes(e)) return "Photo";
@@ -262,6 +268,8 @@
     sha = json.sha;
     data = JSON.parse(b64ToUtf8(json.content));
     data.projects = data.projects || []; data.skills = data.skills || []; data.tools = data.tools || []; data.meta = data.meta || {};
+    data.skills.forEach(s => { s.categories = Array.isArray(s.categories) ? s.categories : (s.category ? [s.category] : []); delete s.category; });
+    data.tools.forEach(t => { t.categories = Array.isArray(t.categories) ? t.categories : (t.type ? [t.type] : []); delete t.type; });
   }
   async function saveData() {
     data.meta.updated = new Date().toISOString().slice(0, 10);
@@ -680,15 +688,15 @@
     const list = data[kind];
     const label = isSkill ? "Skill" : "Tool";
     const idField = isSkill ? "skillIds" : "toolIds";
-    const subField = isSkill ? "category" : "type";
 
     if (editing.kind === kind) return renderCatalogueForm(host, kind);
 
     const usageCount = (id) => data.projects.filter(p => (p[idField] || []).includes(id)).length;
     const rows = list.map(x => {
       const uses = usageCount(x.id);
+      const catText = (x.categories || []).join(" · ");
       return '<div class="rowitem"><div><div class="nm">' + esc(x.name) + '</div>' +
-        '<div class="sub">' + esc([x[subField], x.proficiency].filter(Boolean).join(" · ")) +
+        '<div class="sub">' + esc([catText, x.proficiency].filter(Boolean).join(" · ")) +
         (uses ? " · used in " + uses + " project" + (uses > 1 ? "s" : "") : "") + "</div></div>" +
         '<div class="btns"><button data-edit="' + x.id + '">Edit</button><button class="danger" data-del="' + x.id + '">Delete</button></div></div>';
     }).join("");
@@ -713,16 +721,15 @@
   function renderCatalogueForm(host, kind) {
     const isSkill = kind === "skills";
     const label = isSkill ? "skill" : "tool";
-    const subLabel = isSkill ? "Category" : "Type";
-    const subPh = isSkill ? "e.g. Analysis, Software, Communication" : "e.g. CAD, Simulation, Language";
     const x = data[kind].find(i => i.id === editing.id) || { id: null, name: "", proficiency: "Intermediate" };
+    const chosen = Array.isArray(x.categories) ? x.categories : [];
+    const catGrid = '<div class="checkgrid">' + (CATEGORY_OPTIONS[kind] || []).map(c =>
+      '<label><input type="checkbox" name="c-cat" value="' + esc(c) + '"' + (chosen.includes(c) ? " checked" : "") + ">" + esc(c) + "</label>").join("") + "</div>";
 
     host.innerHTML = '<div class="editor"><h3>' + (x.id ? "Edit " : "New ") + label + "</h3>" +
       fieldRow("c-name", "Name *", x.name) +
-      '<div class="grid2">' +
-        fieldRow("c-sub", subLabel, x[isSkill ? "category" : "type"], subPh) +
-        selectRow("c-prof", "Proficiency", x.proficiency || "Intermediate", ["Beginner","Intermediate","Advanced","Expert"]) +
-      "</div>" +
+      '<label><span class="lbl">Category — choose one or more</span>' + catGrid + "</label>" +
+      selectRow("c-prof", "Proficiency", x.proficiency || "Intermediate", ["Beginner","Intermediate","Advanced","Expert"]) +
       '<div class="actions"><button class="primary" id="btn-cat-save">' + (x.id ? "Apply changes" : "Add " + label) + '</button>' +
       '<button id="btn-cat-cancel">Cancel</button></div></div>';
 
@@ -730,10 +737,11 @@
     $("btn-cat-save").addEventListener("click", () => {
       const name = $("c-name").value.trim();
       if (!name) return toast("A name is required", true);
+      const cats = [...host.querySelectorAll('input[name="c-cat"]:checked')].map(c => c.value);
       const obj = {
         id: x.id || newId(isSkill ? "s" : "t"),
         name,
-        [isSkill ? "category" : "type"]: $("c-sub").value.trim(),
+        categories: cats,
         proficiency: $("c-prof").value
       };
       if (x.id) data[kind] = data[kind].map(i => i.id === x.id ? obj : i);
