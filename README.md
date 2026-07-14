@@ -22,7 +22,7 @@ Projects, Skills, and Tools are separate records linked many-to-many: each proje
 
 ## Editing
 
-The editor lives at `/admin.html`, reachable from the small **Editor login** button in the site footer. It authenticates against GitHub with a fine-grained personal access token scoped to this repository only, encrypted locally with a password — the token never appears in this repository. 
+The editor lives at `/admin.html`, reachable from the small Editor login button in the site footer. It authenticates against GitHub with a fine-grained personal access token scoped to this repository only, encrypted locally with a password — the token never appears in this repository. 
 ---
 
 Set in Fraunces & Newsreader · Built with plain HTML, CSS, and JavaScript
