@@ -11,7 +11,7 @@
   "projects": [
     {
       "id": "p-001",
-      "name": "Composite Bridge Load Analysis",
+      "name": "MDT Test",
       "tagline": "Predicting failure modes in a 1:20 scale composite truss bridge",
       "description": "Designed and fabricated a scale composite truss bridge, then modelled its load response in FEA before destructive testing. Final failure load landed within 8% of the predicted value, validating the mesh strategy and material assumptions.",
       "category": "Structural",
@@ -32,7 +32,7 @@
       ],
       "artefacts": [
         {
-          "title": "SharePoint_hub_site_copilot_integration (1)",
+          "title": "pptx test",
           "url": "artefacts/SharePoint_hub_site_copilot_integration--1-.pptx",
           "type": "Report"
         }
