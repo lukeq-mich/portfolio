@@ -288,11 +288,14 @@
     const factsHtml = facts.length
       ? '<dl class="about-facts">' + facts.map(([k, v]) => "<div><dt>" + esc(k) + "</dt><dd>" + esc(v) + "</dd></div>").join("") + "</dl>"
       : "";
+    const bioHtml = meta.aboutBio
+      ? meta.aboutBio.split(/\n+/).map(p => p.trim()).filter(Boolean).map(p => '<p class="about-bio">' + esc(p) + "</p>").join("")
+      : "";
     $("about-section").innerHTML = "<h2>About</h2>" +
       '<div class="about-grid' + (meta.aboutPhoto ? "" : " no-photo") + '">' +
       (meta.aboutPhoto ? '<img class="about-photo" src="' + esc(meta.aboutPhoto) + '" alt="' + esc(meta.name || "") + '" loading="lazy">' : "") +
       "<div>" +
-      (meta.aboutBio ? '<p class="about-bio">' + esc(meta.aboutBio) + "</p>" : "") +
+      bioHtml +
       factsHtml +
       "</div></div>";
   })();
