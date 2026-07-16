@@ -389,7 +389,7 @@
     return '<a class="toc-row" href="#' + esc(p.id) + '">' +
       '<span class="mono code">' + code + '</span>' +
       '<span class="t">' + esc(p.name) + '</span>' +
-      '<span class="mono yr">' + esc(p.category || "") + (p.yearOfStudy ? " · Yr " + esc(p.yearOfStudy) : "") + '</span></a>';
+      '<span class="mono yr">' + esc((p.categories || []).join(", ")) + (p.yearOfStudy ? " · Yr " + esc(p.yearOfStudy) : "") + '</span></a>';
   }).join("") || '<p class="loading">No projects yet — add one from the admin page.</p>';
 
   // Entries
@@ -414,13 +414,13 @@
         '<span class="arrow">open ↗</span></a>';
     }).join("");
 
-    return '<article class="entry" id="' + esc(p.id) + '" data-category="' + esc(p.category || "") + '" data-type="' + esc(p.type || "") + '" data-status="' + esc(p.status || "") + '" data-year="' + esc(p.yearOfStudy || "") + '">' +
+    return '<article class="entry" id="' + esc(p.id) + '" data-categories="' + esc((p.categories || []).join("|")) + '" data-types="' + esc((p.types || []).join("|")) + '" data-status="' + esc(p.status || "") + '" data-year="' + esc(p.yearOfStudy || "") + '">' +
       '<div class="rail">' +
         '<span class="mono code">' + code + '</span>' +
         '<dl class="spec">' +
           specRow("Year", p.yearOfStudy ? "Year " + p.yearOfStudy : "") +
-          specRow("Category", p.category) +
-          specRow("Type", p.type) +
+          specRow("Category", (p.categories || []).join(", ")) +
+          specRow("Type", (p.types || []).join(", ")) +
           specRow("Status", p.status) +
           specRow("Role", p.role) +
           (p.repoUrl ? '<div><dt>Repository</dt><dd><a href="' + esc(p.repoUrl) + '" target="_blank" rel="noopener">View on GitHub ↗</a></dd></div>' : "") +
@@ -444,10 +444,10 @@
     const entries = [...document.querySelectorAll("#projects article.entry")];
     if (!entries.length) return;
 
-    const distinct = (key) => [...new Set(projects.map(p => p[key]).filter(Boolean))].sort();
-    const categories = distinct("category");
-    const types = distinct("type");
-    const statuses = distinct("status");
+    const distinct = (key) => [...new Set(projects.flatMap(p => p[key] || []))].sort();
+    const categories = distinct("categories");
+    const types = distinct("types");
+    const statuses = [...new Set(projects.map(p => p.status).filter(Boolean))].sort();
     const years = [...new Set(projects.map(p => p.yearOfStudy).filter(Boolean))].sort((a, b) => a - b);
 
     const opts = (label, list) => '<option value="">' + esc(label) + '</option>' +
@@ -481,9 +481,11 @@
       const stat = $("filter-status").value;
       const yr = $("filter-year").value.replace(/^Year /, "");
       entries.forEach(el => {
+        const cats = (el.dataset.categories || "").split("|");
+        const typs = (el.dataset.types || "").split("|");
         const match =
-          (!cat || el.dataset.category === cat) &&
-          (!typ || el.dataset.type === typ) &&
+          (!cat || cats.includes(cat)) &&
+          (!typ || typs.includes(typ)) &&
           (!stat || el.dataset.status === stat) &&
           (!yr || el.dataset.year === yr);
         el.classList.toggle("hidden", !match);
