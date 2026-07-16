@@ -15,26 +15,7 @@
     "major": "B.S.E. Aerospace Engineernig",
     "gradYear": "2029"
   },
-  "projects": [
-    {
-      "id": "p-mrn0dk5cj0cd",
-      "name": "test",
-      "tagline": "",
-      "description": "",
-      "status": "Complete",
-      "yearOfStudy": 2,
-      "role": "",
-      "outcome": "",
-      "featured": false,
-      "coverImage": "",
-      "repoUrl": "",
-      "skillIds": [],
-      "toolIds": [],
-      "artefacts": [],
-      "categories": [],
-      "types": []
-    }
-  ],
+  "projects": [],
   "skills": [],
   "tools": []
 }
