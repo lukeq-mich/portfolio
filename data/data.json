@@ -8,7 +8,12 @@
     "resume": "",
     "updated": "2026-07-16",
     "seoDescription": "",
-    "accent": "#cc1400"
+    "accent": "#cc1400",
+    "aboutPhoto": "",
+    "aboutBio": "",
+    "school": "University of Michigan",
+    "major": "B.S.E. Aerospace Engineernig",
+    "gradYear": "2029"
   },
   "projects": [],
   "skills": [],
