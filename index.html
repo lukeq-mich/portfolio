@@ -64,12 +64,9 @@
     padding:1.6rem 0 .4rem;
     max-width:14ch;
   }
-  .mast-intro{
-    display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);
-    gap:2rem;align-items:end;padding:.5rem 0 2.5rem;
-  }
+  .mast-intro{padding:.5rem 0 2.5rem}
   .mast-intro p{font-size:1.2rem;font-weight:300;max-width:52ch}
-  .mast-intro .contact{justify-self:end;text-align:right;color:var(--graphite);line-height:2}
+  .mast-intro .contact{text-align:right;color:var(--graphite);line-height:2}
   .mast-intro .contact a{text-decoration:none;border-bottom:1px solid var(--rule)}
   .mast-intro .contact a.icon-link{border-bottom:none;display:inline-flex;align-items:center;vertical-align:-3px}
   .mast-intro .contact a.icon-link svg{width:1.1rem;height:1.1rem;fill:currentColor}
@@ -187,8 +184,6 @@
   .error{color:var(--red)}
 
   @media (max-width:760px){
-    .mast-intro{grid-template-columns:1fr}
-    .mast-intro .contact{justify-self:start;text-align:left}
     article.entry,article.entry:nth-of-type(even){grid-template-columns:1fr;gap:1.5rem}
     article.entry:nth-of-type(even) .rail{order:1}
     article.entry:nth-of-type(even) .body{order:2}
@@ -209,18 +204,17 @@
   </div>
   <h1 class="mast-name" id="site-name"></h1>
   <div class="mast-intro">
-    <p id="site-intro"></p>
     <div class="contact mono" id="site-contact"></div>
   </div>
 </header>
 
 <main class="wrap">
+  <section class="about" id="about-section" aria-label="About"></section>
+
   <nav class="contents" aria-label="Project contents">
     <h2>Contents</h2>
     <div id="toc"><p class="loading">Loading register…</p></div>
   </nav>
-
-  <section class="about" id="about-section" aria-label="About"></section>
 
   <section class="projects" id="projects" aria-label="Projects"></section>
 
@@ -267,7 +261,6 @@
   document.title = (meta.name ? meta.name + " — " : "") + (meta.title || "Portfolio");
   $("site-name").textContent = meta.name || "";
   $("footer-name").textContent = meta.name || "";
-  $("site-intro").textContent = meta.intro || "";
   $("issue-line").textContent = (meta.title || "Project register") + " · " + new Date().getFullYear();
   if (meta.updated) $("updated-line").textContent = "Rev. " + meta.updated;
   const contactBits = [];
