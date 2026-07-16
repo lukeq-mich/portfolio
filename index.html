@@ -304,6 +304,7 @@
           specRow("Type", p.type) +
           specRow("Status", p.status) +
           specRow("Role", p.role) +
+          (p.repoUrl ? '<div><dt>Repository</dt><dd><a href="' + esc(p.repoUrl) + '" target="_blank" rel="noopener">View on GitHub ↗</a></dd></div>' : "") +
         "</dl>" +
         (p.featured ? '<span class="stamp">Featured</span>' : "") +
       "</div>" +
