@@ -7,7 +7,7 @@
     "linkedin": "https://www.linkedin.com/in/luke-quarderer-61909a2b6",
     "resume": "",
     "updated": "2026-07-16",
-    "seoDescription": "",
+    "seoDescription": "Luke Quarderer's engineering portfolio — Aerospace Engineering projects from the University of Michigan, documented with skills, tools, and outcomes.",
     "accent": "#cc1400",
     "aboutPhoto": "",
     "aboutBio": "I'm a second-year Aerospace Engineering student in the College of Engineering at the University of Michigan, with a particular interest in applying aerospace technologies within the defense sector. I'm building a strong technical foundation through coursework, hands-on projects, and collaborative experiences, and I'm looking for opportunities where engineering innovation meets real-world defense challenges.\n\nAs a U.S. expat, I currently live in Canberra, Australia. Six years spent overseas as a diplomat's dependent in London and Canberra gave me a close-up view of the intersection between government, military, and diplomacy.\nThis past year, I interned with Leidos, supporting data management and automation solutions used by more than 45 members of the Sea Archer program. That experience reinforced how much I value learning through industry work alongside my coursework.\n\nOutside of academics, I love to travel — this year I backpacked through Colombia and Vanuatu, bringing my country count to 31, with the Dominican Republic next on the list.",
@@ -15,26 +15,7 @@
     "major": "B.S.E. Aerospace Engineernig",
     "gradYear": "2029"
   },
-  "projects": [
-    {
-      "id": "p-mrmzg9mrk1t8",
-      "name": "PROJECT",
-      "tagline": "",
-      "description": "",
-      "category": "",
-      "type": "",
-      "status": "Complete",
-      "yearOfStudy": "",
-      "role": "",
-      "outcome": "",
-      "featured": false,
-      "coverImage": "",
-      "repoUrl": "",
-      "skillIds": [],
-      "toolIds": [],
-      "artefacts": []
-    }
-  ],
+  "projects": [],
   "skills": [],
   "tools": []
 }
