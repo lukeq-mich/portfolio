@@ -75,6 +75,8 @@
   .mast-intro p{font-size:1.2rem;font-weight:300;max-width:52ch}
   .mast-intro .contact{justify-self:end;text-align:right;color:var(--graphite);line-height:2}
   .mast-intro .contact a{text-decoration:none;border-bottom:1px solid var(--rule)}
+  .mast-intro .contact a.icon-link{border-bottom:none;display:inline-flex;align-items:center;vertical-align:-3px}
+  .mast-intro .contact a.icon-link svg{width:1.1rem;height:1.1rem;fill:currentColor}
 
   /* ---------- contents ---------- */
   .contents{border-top:1px solid var(--ink);padding:1.4rem 0 3.5rem}
@@ -264,7 +266,7 @@
   if (meta.updated) $("updated-line").textContent = "Rev. " + meta.updated;
   const contactBits = [];
   if (meta.email) contactBits.push('<a href="mailto:' + esc(meta.email) + '">' + esc(meta.email) + '</a>');
-  if (meta.linkedin) contactBits.push('<a href="' + esc(meta.linkedin) + '" target="_blank" rel="noopener">LinkedIn</a>');
+  if (meta.linkedin) contactBits.push('<a class="icon-link" href="' + esc(meta.linkedin) + '" target="_blank" rel="noopener" aria-label="LinkedIn profile"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13ZM7.12 20.45H3.56V9h3.56v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z"/></svg></a>');
   if (meta.resume) contactBits.push('<a href="' + esc(meta.resume) + '" target="_blank" rel="noopener">Résumé (PDF)</a>');
   $("site-contact").innerHTML = contactBits.join(" · ");
 
