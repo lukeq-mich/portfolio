@@ -6,11 +6,30 @@
     "email": "lukeq@umich",
     "linkedin": "https://www.linkedin.com/in/luke-quarderer-61909a2b6",
     "resume": "",
-    "updated": "2026-07-14",
+    "updated": "2026-07-16",
     "seoDescription": "",
     "accent": "#cc1400"
   },
-  "projects": [],
+  "projects": [
+    {
+      "id": "p-mrmxxrz371ev",
+      "name": "test",
+      "tagline": "",
+      "description": "",
+      "category": "",
+      "type": "",
+      "status": "Complete",
+      "yearOfStudy": "",
+      "role": "",
+      "outcome": "",
+      "featured": false,
+      "coverImage": "",
+      "repoUrl": "",
+      "skillIds": [],
+      "toolIds": [],
+      "artefacts": []
+    }
+  ],
   "skills": [],
   "tools": []
 }
