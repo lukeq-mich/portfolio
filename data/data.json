@@ -15,7 +15,110 @@
     "major": "B.S.E. Aerospace Engineernig",
     "gradYear": "2029"
   },
-  "projects": [],
-  "skills": [],
-  "tools": []
+  "projects": [
+    {
+      "id": "p-mro2qtlvxc2d",
+      "name": "Bedside Storage Device — Bedside Buddy",
+      "tagline": "",
+      "description": "",
+      "categories": [
+        "Design"
+      ],
+      "types": [
+        "Coursework/Module"
+      ],
+      "status": "Complete",
+      "yearOfStudy": 1,
+      "role": "Project Manager",
+      "outcome": "",
+      "featured": false,
+      "coverImage": "",
+      "repoUrl": "",
+      "skillIds": [
+        "s-mro2p8oeybv9"
+      ],
+      "toolIds": [
+        "t-mro2npf3n6mc",
+        "t-mro2oqv4sqdv"
+      ],
+      "artefacts": []
+    }
+  ],
+  "skills": [
+    {
+      "id": "s-mro2p8oeybv9",
+      "name": "CAD",
+      "categories": [
+        "Design",
+        "Technical/Engineering",
+        "Analytical/Mathematical"
+      ],
+      "proficiency": "Intermediate"
+    }
+  ],
+  "tools": [
+    {
+      "id": "t-mro2lxe8nbq0",
+      "name": "MATLAB",
+      "categories": [
+        "Simulation/Analysis",
+        "Programming Language",
+        "Software/Application"
+      ],
+      "proficiency": "Advanced"
+    },
+    {
+      "id": "t-mro2mc8nv8dh",
+      "name": "Java",
+      "categories": [
+        "Programming Language"
+      ],
+      "proficiency": "Advanced"
+    },
+    {
+      "id": "t-mro2n6391qcs",
+      "name": "Python",
+      "categories": [
+        "Programming Language"
+      ],
+      "proficiency": "Intermediate"
+    },
+    {
+      "id": "t-mro2ndfxawl9",
+      "name": "HTML/CSS",
+      "categories": [
+        "Programming Language"
+      ],
+      "proficiency": "Intermediate"
+    },
+    {
+      "id": "t-mro2npf3n6mc",
+      "name": "Ansys",
+      "categories": [
+        "CAD/Modelling",
+        "Simulation/Analysis",
+        "Software/Application"
+      ],
+      "proficiency": "Intermediate"
+    },
+    {
+      "id": "t-mro2ny92xulv",
+      "name": "SolidWorks",
+      "categories": [
+        "CAD/Modelling",
+        "Simulation/Analysis",
+        "Software/Application"
+      ],
+      "proficiency": "Intermediate"
+    },
+    {
+      "id": "t-mro2oqv4sqdv",
+      "name": "3D Printer",
+      "categories": [
+        "CAD/Modelling",
+        "Lab Equipment"
+      ],
+      "proficiency": "Intermediate"
+    }
+  ]
 }
