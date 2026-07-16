@@ -10,26 +10,7 @@
     "seoDescription": "",
     "accent": "#cc1400"
   },
-  "projects": [
-    {
-      "id": "p-mrmxxrz371ev",
-      "name": "test",
-      "tagline": "",
-      "description": "",
-      "category": "",
-      "type": "",
-      "status": "Complete",
-      "yearOfStudy": "",
-      "role": "",
-      "outcome": "",
-      "featured": false,
-      "coverImage": "",
-      "repoUrl": "",
-      "skillIds": [],
-      "toolIds": [],
-      "artefacts": []
-    }
-  ],
+  "projects": [],
   "skills": [],
   "tools": []
 }
