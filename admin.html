@@ -505,7 +505,7 @@
   function renderProjectForm(host) {
     const p = data.projects.find(x => x.id === editing.id) || {
       id: null, name: "", tagline: "", description: "", category: "", type: "", status: "",
-      yearOfStudy: "", role: "", outcome: "", featured: false, coverImage: "", skillIds: [], toolIds: [], artefacts: []
+      yearOfStudy: "", role: "", outcome: "", featured: false, coverImage: "", repoUrl: "", skillIds: [], toolIds: [], artefacts: []
     };
     const checkgrid = (list, chosen, name) => list.length
       ? '<div class="checkgrid">' + list.map(x =>
@@ -515,6 +515,7 @@
     host.innerHTML = '<div class="editor"><h3>' + (p.id ? "Edit project" : "New project") + "</h3>" +
       fieldRow("f-name", "Project name *", p.name) +
       fieldRow("f-tagline", "Tagline", p.tagline, "One line that sells the project") +
+      fieldRow("f-repourl", "GitHub repository", p.repoUrl, "https://github.com/username/repo") +
       areaRow("f-description", "Description", p.description) +
       '<div class="grid3">' +
         fieldRow("f-category", "Category", p.category, "e.g. Structural") +
@@ -661,6 +662,7 @@
         outcome: $("f-outcome").value.trim(),
         featured: $("f-featured").checked,
         coverImage: cover,
+        repoUrl: $("f-repourl").value.trim(),
         skillIds: checked("skills"),
         toolIds: checked("tools"),
         artefacts: arts.filter(a => a.title.trim() || a.url.trim())
