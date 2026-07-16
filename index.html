@@ -81,6 +81,17 @@
   /* ---------- contents ---------- */
   .contents{border-top:1px solid var(--ink);padding:1.4rem 0 3.5rem}
   .contents h2{font-family:var(--font-mono);font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--graphite);margin-bottom:1.1rem}
+
+  /* ---------- about ---------- */
+  section.about{border-top:1px solid var(--ink);padding:1.4rem 0 2.8rem}
+  .about h2{font-family:var(--font-mono);font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--graphite);margin-bottom:1.4rem}
+  .about-grid{display:grid;grid-template-columns:minmax(160px,200px) 1fr;gap:2.2rem;align-items:start}
+  .about-grid.no-photo{grid-template-columns:1fr}
+  .about-photo{width:100%;aspect-ratio:4/5;object-fit:cover;border:1px solid var(--rule);display:block}
+  .about-bio{font-size:1.1rem;font-weight:300;max-width:62ch;margin-bottom:1.4rem}
+  .about-facts{display:flex;flex-wrap:wrap;gap:1.8rem 2.5rem;font-family:var(--font-mono);font-size:.78rem;padding-top:1rem;border-top:1px solid var(--rule)}
+  .about-facts dt{color:var(--graphite);text-transform:uppercase;letter-spacing:.09em;margin-bottom:.25rem}
+  .about-facts dd{color:var(--ink);font-size:.95rem;font-family:var(--font-body)}
   .toc-row{
     display:grid;grid-template-columns:5.5rem 1fr auto;gap:1rem;
     align-items:baseline;padding:.55rem 0;border-bottom:1px dotted var(--rule);
@@ -186,6 +197,8 @@
     article.entry:nth-of-type(even) .rail{order:1}
     article.entry:nth-of-type(even) .body{order:2}
     .reg-grid{grid-template-columns:1fr}
+    .about-grid{grid-template-columns:1fr}
+    .about-photo{max-width:200px}
     .toc-row{grid-template-columns:4rem 1fr}
     .toc-row .yr{display:none}
   }
@@ -215,6 +228,8 @@
     <h2>Contents</h2>
     <div id="toc"><p class="loading">Loading register…</p></div>
   </nav>
+
+  <section class="about" id="about-section" aria-label="About"></section>
 
   <section class="projects" id="projects" aria-label="Projects"></section>
 
@@ -269,6 +284,26 @@
   if (meta.linkedin) contactBits.push('<a class="icon-link" href="' + esc(meta.linkedin) + '" target="_blank" rel="noopener" aria-label="LinkedIn profile"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13ZM7.12 20.45H3.56V9h3.56v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z"/></svg></a>');
   if (meta.resume) contactBits.push('<a href="' + esc(meta.resume) + '" target="_blank" rel="noopener">Résumé (PDF)</a>');
   $("site-contact").innerHTML = contactBits.join(" · ");
+
+  // About section
+  (function renderAbout() {
+    const hasContent = meta.aboutBio || meta.aboutPhoto || meta.school || meta.major || meta.gradYear;
+    if (!hasContent) return;
+    const facts = [];
+    if (meta.school) facts.push(["School", meta.school]);
+    if (meta.major) facts.push(["Major", meta.major]);
+    if (meta.gradYear) facts.push(["Graduation", meta.gradYear]);
+    const factsHtml = facts.length
+      ? '<dl class="about-facts">' + facts.map(([k, v]) => "<div><dt>" + esc(k) + "</dt><dd>" + esc(v) + "</dd></div>").join("") + "</dl>"
+      : "";
+    $("about-section").innerHTML = "<h2>About</h2>" +
+      '<div class="about-grid' + (meta.aboutPhoto ? "" : " no-photo") + '">' +
+      (meta.aboutPhoto ? '<img class="about-photo" src="' + esc(meta.aboutPhoto) + '" alt="' + esc(meta.name || "") + '" loading="lazy">' : "") +
+      "<div>" +
+      (meta.aboutBio ? '<p class="about-bio">' + esc(meta.aboutBio) + "</p>" : "") +
+      factsHtml +
+      "</div></div>";
+  })();
 
   // Order: featured first, then most recent year of study
   const projects = (data.projects || []).slice().sort((a, b) =>
