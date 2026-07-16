@@ -191,6 +191,10 @@
     skills: ["Design","Technical/Engineering","Analytical/Mathematical","Software/Programming","Laboratory/Practical","Project Management","Communication/Teamwork"],
     tools:  ["CAD/Modelling","Simulation/Analysis","Programming Language","Software/Application","Lab Equipment","Hardware/Electronics","Method/Technique"]
   };
+  // Fixed preset lists for the Category and Type multi-selects on Projects.
+  // Edit these arrays to change the available choices.
+  const PROJECT_CATEGORY_OPTIONS = ["Mechanical","Electrical/Electronic","Civil/Structural","Software","Aerospace","Chemical","Mechatronics/Robotics","Design","Research","Other"];
+  const PROJECT_TYPE_OPTIONS = ["Coursework/Module","Group Project","Final-Year/Capstone","Competition","Personal","Placement/Internship","Research"];
   function extType(name) {
     const e = (name.split(".").pop() || "").toLowerCase();
     if (["png","jpg","jpeg","gif","webp","heic","bmp"].includes(e)) return "Photo";
@@ -276,6 +280,11 @@
     data.projects = data.projects || []; data.skills = data.skills || []; data.tools = data.tools || []; data.meta = data.meta || {};
     data.skills.forEach(s => { s.categories = Array.isArray(s.categories) ? s.categories : (s.category ? [s.category] : []); delete s.category; });
     data.tools.forEach(t => { t.categories = Array.isArray(t.categories) ? t.categories : (t.type ? [t.type] : []); delete t.type; });
+    data.projects.forEach(p => {
+      p.categories = Array.isArray(p.categories) ? p.categories : (p.category ? [p.category] : []);
+      p.types = Array.isArray(p.types) ? p.types : (p.type ? [p.type] : []);
+      delete p.category; delete p.type;
+    });
   }
   async function saveData() {
     data.meta.updated = new Date().toISOString().slice(0, 10);
@@ -526,7 +535,7 @@
     const host = $("tab-projects");
     if (editing.kind === "project") return renderProjectForm(host);
     const rows = data.projects.map(p => {
-      const bits = [p.category, p.yearOfStudy ? "Year " + p.yearOfStudy : "", p.status].filter(Boolean).join(" · ");
+      const bits = [(p.categories || []).join(", "), p.yearOfStudy ? "Year " + p.yearOfStudy : "", p.status].filter(Boolean).join(" · ");
       return '<div class="rowitem"><div><div class="nm">' + esc(p.name) + (p.featured ? ' <span class="mono" style="color:var(--red)">★ featured</span>' : "") + '</div>' +
         '<div class="sub">' + esc(bits) + "</div></div>" +
         '<div class="btns"><button data-edit="' + p.id + '">Edit</button><button class="danger" data-del="' + p.id + '">Delete</button></div></div>';
@@ -548,22 +557,25 @@
 
   function renderProjectForm(host) {
     const p = data.projects.find(x => x.id === editing.id) || {
-      id: null, name: "", tagline: "", description: "", category: "", type: "", status: "",
+      id: null, name: "", tagline: "", description: "", categories: [], types: [], status: "",
       yearOfStudy: "", role: "", outcome: "", featured: false, coverImage: "", repoUrl: "", skillIds: [], toolIds: [], artefacts: []
     };
     const checkgrid = (list, chosen, name) => list.length
       ? '<div class="checkgrid">' + list.map(x =>
           '<label><input type="checkbox" name="' + name + '" value="' + esc(x.id) + '"' + (chosen.includes(x.id) ? " checked" : "") + ">" + esc(x.name) + "</label>").join("") + "</div>"
       : '<p class="sub" style="color:var(--graphite)">None yet — add some in the ' + name + ' tab first.</p>';
+    const checkgridFlat = (list, chosen, name) =>
+      '<div class="checkgrid">' + list.map(v =>
+        '<label><input type="checkbox" name="' + name + '" value="' + esc(v) + '"' + (chosen.includes(v) ? " checked" : "") + ">" + esc(v) + "</label>").join("") + "</div>";
 
     host.innerHTML = '<div class="editor"><h3>' + (p.id ? "Edit project" : "New project") + "</h3>" +
       fieldRow("f-name", "Project name *", p.name) +
       fieldRow("f-tagline", "Tagline", p.tagline, "One line that sells the project") +
       fieldRow("f-repourl", "GitHub repository", p.repoUrl, "https://github.com/username/repo") +
       areaRow("f-description", "Description", p.description) +
+      '<label><span class="lbl">Category</span>' + checkgridFlat(PROJECT_CATEGORY_OPTIONS, p.categories || [], "proj-cat") + "</label>" +
+      '<label><span class="lbl">Type</span>' + checkgridFlat(PROJECT_TYPE_OPTIONS, p.types || [], "proj-type") + "</label>" +
       '<div class="grid3">' +
-        fieldRow("f-category", "Category", p.category, "e.g. Structural") +
-        fieldRow("f-type", "Type", p.type, "Coursework / Personal / Team") +
         selectRow("f-status", "Status", p.status || "Complete", ["Complete","Ongoing","Paused","Concept"]) +
       "</div>" +
       '<div class="grid2">' +
@@ -698,8 +710,8 @@
         name,
         tagline: $("f-tagline").value.trim(),
         description: $("f-description").value.trim(),
-        category: $("f-category").value.trim(),
-        type: $("f-type").value.trim(),
+        categories: checked("proj-cat"),
+        types: checked("proj-type"),
         status: $("f-status").value,
         yearOfStudy: parseInt($("f-year").value, 10) || "",
         role: $("f-role").value.trim(),
