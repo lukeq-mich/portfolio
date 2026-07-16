@@ -97,6 +97,31 @@
 
   /* ---------- project entries ---------- */
   section.projects{padding-bottom:2rem}
+
+  .proj-controls{
+    display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;
+    gap:1rem;padding:1.4rem 0;border-top:1px solid var(--ink);
+  }
+  .view-switch{display:flex;border:1px solid var(--ink);border-radius:2px;overflow:hidden}
+  .view-switch button{
+    font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--graphite);background:none;border:none;padding:.5rem .9rem;cursor:pointer;
+  }
+  .view-switch button + button{border-left:1px solid var(--ink)}
+  .view-switch button.active{background:var(--ink);color:var(--paper)}
+  .proj-filters{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+  .filter-select{
+    font-family:var(--font-mono);font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:2px;
+    padding:.45rem .6rem;cursor:pointer;
+  }
+  .text-btn{
+    font-family:var(--font-mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--graphite);background:none;border:none;text-decoration:underline;
+    text-underline-offset:3px;cursor:pointer;padding:0;
+  }
+  .text-btn:hover{color:var(--red)}
+
   article.entry{
     display:grid;
     grid-template-columns:minmax(0,4fr) minmax(0,8fr);
@@ -107,6 +132,55 @@
   article.entry:nth-of-type(even){grid-template-columns:minmax(0,8fr) minmax(0,4fr)}
   article.entry:nth-of-type(even) .rail{order:2}
   article.entry:nth-of-type(even) .body{order:1}
+
+  /* View: Grid */
+  #projects.view-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:2rem;
+  }
+  #projects.view-grid article.entry,
+  #projects.view-grid article.entry:nth-of-type(even){
+    display:flex;flex-direction:column;grid-template-columns:unset;
+    border:1px solid var(--rule);border-top:1px solid var(--rule);padding:1.3rem;
+  }
+  #projects.view-grid article.entry .rail,
+  #projects.view-grid article.entry:nth-of-type(even) .rail{order:2;margin-top:.9rem}
+  #projects.view-grid article.entry .body,
+  #projects.view-grid article.entry:nth-of-type(even) .body{order:1}
+  #projects.view-grid article.entry .rail .code{margin-bottom:.6rem}
+  #projects.view-grid article.entry .body h3{font-size:1.25rem}
+  #projects.view-grid article.entry .body .tagline{font-size:1rem;margin-bottom:.7rem}
+  #projects.view-grid article.entry .desc,
+  #projects.view-grid article.entry .outcome,
+  #projects.view-grid article.entry .artefacts,
+  #projects.view-grid article.entry .taglist{display:none}
+  #projects.view-grid article.entry .body .cover{margin-bottom:1rem}
+  #projects.view-grid article.entry .stamp{margin-top:.8rem}
+
+  /* View: List */
+  #projects.view-list{display:block}
+  #projects.view-list article.entry,
+  #projects.view-list article.entry:nth-of-type(even){
+    display:flex;align-items:center;gap:1.2rem;grid-template-columns:unset;
+    padding:1rem 0;border-top:none;border-bottom:1px solid var(--rule);
+  }
+  #projects.view-list article.entry:first-child{border-top:1px solid var(--ink)}
+  #projects.view-list article.entry .body,
+  #projects.view-list article.entry:nth-of-type(even) .body{order:1;flex:1;min-width:0}
+  #projects.view-list article.entry .rail,
+  #projects.view-list article.entry:nth-of-type(even) .rail{order:2;flex-shrink:0;width:12rem}
+  #projects.view-list article.entry .body .cover,
+  #projects.view-list article.entry .desc,
+  #projects.view-list article.entry .outcome,
+  #projects.view-list article.entry .artefacts,
+  #projects.view-list article.entry .taglist,
+  #projects.view-list article.entry .stamp{display:none}
+  #projects.view-list article.entry .body h3{font-size:1.05rem;margin-bottom:.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #projects.view-list article.entry .body .tagline{font-size:.85rem;margin:0;font-style:italic}
+  #projects.view-list article.entry .rail .code{display:none}
+  #projects.view-list article.entry .rail .spec{display:flex;flex-wrap:wrap;gap:.8rem;border-top:none}
+  #projects.view-list article.entry .rail .spec div{display:block;padding:0;border-bottom:none;font-size:.68rem}
+  #projects.view-list article.entry .rail .spec dt{display:none}
+  #projects.view-list article.entry .rail .spec dd{text-align:left;color:var(--graphite)}
 
   .rail{position:relative}
   .rail .code{color:var(--red);display:block;margin-bottom:1.2rem}
@@ -169,7 +243,8 @@
     font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:2rem;
   }
   .reg-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,5vw,5rem)}
-  .reg-col h3{font-family:var(--font-mono);font-size:.76rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);padding-bottom:.45rem;border-bottom:1px solid var(--ink);margin-bottom:1rem}
+  .reg-col-head{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;border-bottom:1px solid var(--ink);padding-bottom:.45rem;margin-bottom:1rem}
+  .reg-col h3{font-family:var(--font-mono);font-size:.76rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
   .reg-item{padding:.85rem 0;border-bottom:1px solid var(--rule)}
   .reg-item .top{display:flex;justify-content:space-between;gap:1rem;align-items:baseline}
   .reg-item .nm{font-family:var(--font-display);font-weight:400;font-size:1.15rem}
@@ -182,6 +257,7 @@
 
   .loading,.error{padding:5rem 0;color:var(--graphite);font-style:italic}
   .error{color:var(--red)}
+  .hidden{display:none!important}
 
   @media (max-width:760px){
     article.entry,article.entry:nth-of-type(even){grid-template-columns:1fr;gap:1.5rem}
@@ -216,13 +292,22 @@
     <div id="toc"><p class="loading">Loading register…</p></div>
   </nav>
 
-  <section class="projects" id="projects" aria-label="Projects"></section>
+  <section class="projects" aria-label="Projects">
+    <div class="proj-controls" id="proj-controls"></div>
+    <div id="projects" class="view-original"></div>
+  </section>
 
   <section class="registers" aria-label="Skills and tools">
     <h2>Capability register</h2>
     <div class="reg-grid">
-      <div class="reg-col"><h3>Skills</h3><div id="skills-list"></div></div>
-      <div class="reg-col"><h3>Tools</h3><div id="tools-list"></div></div>
+      <div class="reg-col">
+        <div class="reg-col-head"><h3>Skills</h3><select class="filter-select" id="filter-skill-cat"><option value="">All categories</option></select></div>
+        <div id="skills-list"></div>
+      </div>
+      <div class="reg-col">
+        <div class="reg-col-head"><h3>Tools</h3><select class="filter-select" id="filter-tool-cat"><option value="">All categories</option></select></div>
+        <div id="tools-list"></div>
+      </div>
     </div>
   </section>
 </main>
@@ -329,7 +414,7 @@
         '<span class="arrow">open ↗</span></a>';
     }).join("");
 
-    return '<article class="entry" id="' + esc(p.id) + '">' +
+    return '<article class="entry" id="' + esc(p.id) + '" data-category="' + esc(p.category || "") + '" data-type="' + esc(p.type || "") + '" data-status="' + esc(p.status || "") + '" data-year="' + esc(p.yearOfStudy || "") + '">' +
       '<div class="rail">' +
         '<span class="mono code">' + code + '</span>' +
         '<dl class="spec">' +
@@ -354,10 +439,69 @@
       "</div></article>";
   }).join("");
 
+  // Project view switch + filters
+  (function projectControls() {
+    const entries = [...document.querySelectorAll("#projects article.entry")];
+    if (!entries.length) return;
+
+    const distinct = (key) => [...new Set(projects.map(p => p[key]).filter(Boolean))].sort();
+    const categories = distinct("category");
+    const types = distinct("type");
+    const statuses = distinct("status");
+    const years = [...new Set(projects.map(p => p.yearOfStudy).filter(Boolean))].sort((a, b) => a - b);
+
+    const opts = (label, list) => '<option value="">' + esc(label) + '</option>' +
+      list.map(v => '<option value="' + esc(v) + '">' + esc(v) + "</option>").join("");
+
+    $("proj-controls").innerHTML =
+      '<div class="view-switch">' +
+        '<button data-view="original" class="active">Original</button>' +
+        '<button data-view="grid">Grid</button>' +
+        '<button data-view="list">List</button>' +
+      "</div>" +
+      '<div class="proj-filters">' +
+        '<select class="filter-select" id="filter-category">' + opts("All categories", categories) + "</select>" +
+        '<select class="filter-select" id="filter-type">' + opts("All types", types) + "</select>" +
+        '<select class="filter-select" id="filter-status">' + opts("All statuses", statuses) + "</select>" +
+        '<select class="filter-select" id="filter-year">' + opts("All years", years.map(y => "Year " + y)) + "</select>" +
+        '<button class="text-btn" id="filter-clear">Clear filters</button>' +
+      "</div>";
+
+    document.querySelectorAll(".view-switch button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".view-switch button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        $("projects").className = "view-" + btn.dataset.view;
+      });
+    });
+
+    function applyFilters() {
+      const cat = $("filter-category").value;
+      const typ = $("filter-type").value;
+      const stat = $("filter-status").value;
+      const yr = $("filter-year").value.replace(/^Year /, "");
+      entries.forEach(el => {
+        const match =
+          (!cat || el.dataset.category === cat) &&
+          (!typ || el.dataset.type === typ) &&
+          (!stat || el.dataset.status === stat) &&
+          (!yr || el.dataset.year === yr);
+        el.classList.toggle("hidden", !match);
+      });
+    }
+    ["filter-category", "filter-type", "filter-status", "filter-year"].forEach(id =>
+      $(id).addEventListener("change", applyFilters));
+    $("filter-clear").addEventListener("click", () => {
+      ["filter-category", "filter-type", "filter-status", "filter-year"].forEach(id => $(id).value = "");
+      applyFilters();
+    });
+  })();
+
   // Capability register
   const regItem = (x) => {
-    const cats = Array.isArray(x.categories) ? x.categories.join(" · ") : (x.category || x.type || "");
-    return '<div class="reg-item"><div class="top"><span class="nm">' + esc(x.name) + '</span>' +
+    const catList = Array.isArray(x.categories) ? x.categories : [x.category || x.type].filter(Boolean);
+    const cats = catList.join(" · ");
+    return '<div class="reg-item" data-cats="' + esc(catList.join("|")) + '"><div class="top"><span class="nm">' + esc(x.name) + '</span>' +
       (x.proficiency ? '<span class="pf">' + esc(x.proficiency) + "</span>" : "") + "</div>" +
       (cats ? '<span class="ct">' + esc(cats) + "</span>" : "") +
       "</div>";
@@ -365,6 +509,22 @@
 
   $("skills-list").innerHTML = skills.map(regItem).join("");
   $("tools-list").innerHTML = tools.map(regItem).join("");
+
+  function wireCategoryFilter(selectId, listId, list) {
+    const select = $(selectId);
+    const cats = [...new Set(list.flatMap(x => Array.isArray(x.categories) ? x.categories : [x.category || x.type].filter(Boolean)))].sort();
+    select.innerHTML = '<option value="">All categories</option>' +
+      cats.map(c => '<option value="' + esc(c) + '">' + esc(c) + "</option>").join("");
+    select.addEventListener("change", () => {
+      const v = select.value;
+      document.querySelectorAll("#" + listId + " .reg-item").forEach(el => {
+        const itemCats = (el.dataset.cats || "").split("|");
+        el.classList.toggle("hidden", v && !itemCats.includes(v));
+      });
+    });
+  }
+  wireCategoryFilter("filter-skill-cat", "skills-list", skills);
+  wireCategoryFilter("filter-tool-cat", "tools-list", tools);
 })();
 </script>
 </body>
