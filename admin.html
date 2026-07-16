@@ -810,7 +810,6 @@
     host.innerHTML = '<div class="section-head"><h2>Site details</h2></div><div class="editor" style="margin-top:0">' +
       fieldRow("m-name", "Your name", m.name) +
       fieldRow("m-title", "Register title", m.title, "e.g. Engineering Portfolio") +
-      areaRow("m-intro", "Introduction", m.intro) +
       '<div style="margin:1.6rem 0 .6rem;padding-top:1.2rem;border-top:1px solid var(--rule)"><span class="lbl" style="font-size:.8rem">About section — shown as its own section on the public site</span></div>' +
       '<span class="lbl">Photo</span>' +
       '<div id="about-photo-zone"></div>' +
@@ -890,7 +889,6 @@
     $("btn-meta-apply").addEventListener("click", () => {
       m.name = $("m-name").value.trim();
       m.title = $("m-title").value.trim();
-      m.intro = $("m-intro").value.trim();
       m.aboutPhoto = aboutPhoto;
       m.aboutBio = $("m-about-bio").value.trim();
       m.school = $("m-school").value.trim();
