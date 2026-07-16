@@ -21,8 +21,6 @@
       "name": "test",
       "tagline": "",
       "description": "",
-      "category": "",
-      "type": "",
       "status": "Complete",
       "yearOfStudy": 2,
       "role": "",
@@ -32,7 +30,9 @@
       "repoUrl": "",
       "skillIds": [],
       "toolIds": [],
-      "artefacts": []
+      "artefacts": [],
+      "categories": [],
+      "types": []
     }
   ],
   "skills": [],
