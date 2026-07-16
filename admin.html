@@ -318,7 +318,7 @@
     return path;
   }
   function isRepoFile(u) {
-    return typeof u === "string" && /^(artefacts|cover-images)\//.test(u);
+    return typeof u === "string" && /^(artefacts|cover-images|about-photos)\//.test(u);
   }
   function referencedFiles(projects) {
     const s = new Set();
@@ -806,10 +806,21 @@
     const host = $("tab-meta");
     const m = data.meta;
     let resumePath = m.resume || "";
+    let aboutPhoto = m.aboutPhoto || "";
     host.innerHTML = '<div class="section-head"><h2>Site details</h2></div><div class="editor" style="margin-top:0">' +
       fieldRow("m-name", "Your name", m.name) +
       fieldRow("m-title", "Register title", m.title, "e.g. Engineering Portfolio") +
       areaRow("m-intro", "Introduction", m.intro) +
+      '<div style="margin:1.6rem 0 .6rem;padding-top:1.2rem;border-top:1px solid var(--rule)"><span class="lbl" style="font-size:.8rem">About section — shown as its own section on the public site</span></div>' +
+      '<span class="lbl">Photo</span>' +
+      '<div id="about-photo-zone"></div>' +
+      areaRow("m-about-bio", "Bio paragraph", m.aboutBio) +
+      '<div class="grid3">' +
+        fieldRow("m-school", "School", m.school, "e.g. University of Michigan") +
+        fieldRow("m-major", "Major", m.major, "e.g. Mechanical Engineering") +
+        fieldRow("m-gradyear", "Graduation year", m.gradYear, "e.g. 2027") +
+      "</div>" +
+      '<div style="margin:1.6rem 0 .6rem;padding-top:1.2rem;border-top:1px solid var(--rule)"></div>' +
       fieldRow("m-email", "Contact email", m.email) +
       fieldRow("m-linkedin", "LinkedIn URL", m.linkedin, "https://www.linkedin.com/in/yourname") +
       '<label><span class="lbl">Résumé / CV — upload a PDF to add a download link on the site</span><div id="resume-zone"></div></label>' +
@@ -819,6 +830,34 @@
       '<input type="color" id="m-accent" value="' + esc(/^#[0-9A-Fa-f]{6}$/.test(m.accent || "") ? m.accent : "#A02A1C") + '" style="width:5rem;height:2.6rem;padding:.15rem;cursor:pointer">' +
       '<button class="quiet" id="btn-accent-reset">Reset to default red</button></span></label>' +
       '<div class="actions"><button class="primary" id="btn-meta-apply">Apply changes</button></div></div>';
+    function drawAboutPhoto() {
+      const z = $("about-photo-zone");
+      if (aboutPhoto) {
+        z.innerHTML = '<div class="cover-preview"><img src="' + esc(aboutPhoto) + '" alt="About photo preview"><div><div class="pth">' + esc(aboutPhoto) + '</div><button class="quiet" id="btn-about-photo-remove" style="margin-top:.5rem">Remove photo</button></div></div>';
+        $("btn-about-photo-remove").addEventListener("click", () => { aboutPhoto = ""; drawAboutPhoto(); });
+      } else {
+        z.innerHTML = '<div class="dropzone" id="about-photo-drop">Drop an image here, or click to choose</div><input type="file" id="about-photo-file" class="hidden" accept="image/*">';
+        const az = $("about-photo-drop"), af = $("about-photo-file");
+        az.addEventListener("click", () => af.click());
+        az.addEventListener("dragover", (e) => { e.preventDefault(); az.classList.add("drag"); });
+        az.addEventListener("dragleave", () => az.classList.remove("drag"));
+        az.addEventListener("drop", (e) => { e.preventDefault(); az.classList.remove("drag"); if (e.dataTransfer.files[0]) handleAboutPhoto(e.dataTransfer.files[0]); });
+        af.addEventListener("change", () => { if (af.files[0]) handleAboutPhoto(af.files[0]); af.value = ""; });
+      }
+    }
+    async function handleAboutPhoto(file) {
+      if (!file.type.startsWith("image/")) return toast("The photo must be an image file", true);
+      if (file.size > 25 * 1024 * 1024) return toast("Images must be under 25 MB", true);
+      toast("Uploading " + file.name + "…");
+      try {
+        aboutPhoto = await uploadRepoFile(file, "about-photos");
+        drawAboutPhoto();
+        toast("Photo uploaded to the about-photos folder");
+      } catch (e) {
+        toast(e.message, true);
+      }
+    }
+    drawAboutPhoto();
     function drawResume() {
       const z = $("resume-zone");
       if (resumePath) {
@@ -852,6 +891,11 @@
       m.name = $("m-name").value.trim();
       m.title = $("m-title").value.trim();
       m.intro = $("m-intro").value.trim();
+      m.aboutPhoto = aboutPhoto;
+      m.aboutBio = $("m-about-bio").value.trim();
+      m.school = $("m-school").value.trim();
+      m.major = $("m-major").value.trim();
+      m.gradYear = $("m-gradyear").value.trim();
       m.email = $("m-email").value.trim();
       m.linkedin = $("m-linkedin").value.trim();
       m.resume = resumePath;
