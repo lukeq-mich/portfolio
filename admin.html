@@ -8,6 +8,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Editor — Portfolio</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -97,20 +98,27 @@
 </head>
 <body>
 
-<!-- ============ LOGIN / SETUP ============ -->
-<div id="view-login">
+<!-- ============ GOOGLE SIGN-IN GATE ============ -->
+<div id="view-google-gate">
   <div class="login">
-    <h2 id="login-title">Editor login</h2>
+    <h2>Admin access</h2>
+    <p class="sub">Sign in with the Google account authorized for this editor.</p>
+    <div id="google-gate-msg"></div>
+    <div id="g_id_button" style="display:flex;justify-content:center;margin:1.2rem 0"></div>
+    <p style="margin-top:1.4rem;text-align:center"><a class="btnlink" href="index.html">← Back to the site</a></p>
+  </div>
+</div>
+
+<!-- ============ LOGIN / SETUP ============ -->
+<div id="view-login" class="hidden">
+  <div class="login">
+    <h2 id="login-title">Connecting…</h2>
     <p class="sub" id="login-sub">Enter your password to unlock the editor.</p>
     <div id="login-msg"></div>
 
-    <!-- returning user -->
+    <!-- returning user: connects automatically once Google sign-in succeeds -->
     <div id="login-form">
-      <label><span class="lbl">Password</span>
-        <input type="password" id="in-password" autocomplete="current-password">
-      </label>
-      <button class="primary" id="btn-unlock" style="width:100%">Unlock editor</button>
-      <p style="margin-top:1.2rem;text-align:center"><button class="quiet" id="btn-show-reset">Reset connection</button></p>
+      <p style="margin-top:.4rem;text-align:center"><button class="quiet" id="btn-show-reset">Reset connection</button></p>
     </div>
 
     <!-- first-run setup -->
@@ -126,12 +134,6 @@
       </label>
       <label><span class="lbl">Fine-grained personal access token</span>
         <input type="password" id="in-token" placeholder="github_pat_…" autocomplete="off">
-      </label>
-      <label><span class="lbl">Choose a password (unlocks the editor on this device)</span>
-        <input type="password" id="in-newpass" autocomplete="new-password">
-      </label>
-      <label><span class="lbl">Confirm password</span>
-        <input type="password" id="in-newpass2" autocomplete="new-password">
       </label>
       <button class="primary" id="btn-setup" style="width:100%">Verify &amp; save connection</button>
     </div>
@@ -179,6 +181,9 @@
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const STORE_KEY = "portfolio-editor-v1";
   const DATA_PATH = "data/data.json";
+  const GOOGLE_CLIENT_ID = "20873930088-ofa0fhsk48jtic1uq4s958cv4tl54t09.apps.googleusercontent.com";
+  const ALLOWED_EMAIL = "lukeq@umich.edu";
+  const GOOGLE_GATE_KEY = "portfolio-editor-google-ok";
   const ART_TYPES = ["Report","Drawing","Poster","Code","Photo","Video"];
   // Fixed preset lists for the Category multi-select on Skills and Tools.
   // Edit these arrays to change the available choices.
@@ -197,6 +202,7 @@
 
   let cfg = null;        // {owner, repo, branch}
   let token = null;      // decrypted, memory only
+  let googleSub = null;  // stable id from the verified Google account, used as key material
   let data = null;       // the JSON content
   let sha = null;        // current blob sha on GitHub
   let dirty = false;
@@ -348,6 +354,47 @@
     return n;
   }
 
+  /* ---------- google sign-in gate ---------- */
+  // Note: this decodes the Google ID token client-side to read the email claim.
+  // It is a UI-level gate, not a cryptographic guarantee (there's no server here to
+  // verify the token's signature) — the actual secret (the GitHub token) stays behind
+  // the separate password-encrypted step below regardless of this gate.
+  function decodeJwt(idToken) {
+    const b64 = idToken.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const json = decodeURIComponent(atob(b64).split("").map(c =>
+      "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)).join(""));
+    return JSON.parse(json);
+  }
+
+  function gateMsg(text, ok) { $("google-gate-msg").innerHTML = text ? '<div class="msg ' + (ok ? "ok" : "err") + '">' + esc(text) + "</div>" : ""; }
+
+  function handleGoogleCredential(resp) {
+    let claims;
+    try { claims = decodeJwt(resp.credential); } catch { return gateMsg("Couldn't read the Google sign-in response. Try again.", false); }
+    if (claims.email !== ALLOWED_EMAIL || !claims.email_verified) {
+      gateMsg("This admin page is restricted to " + ALLOWED_EMAIL + " — you signed in as " + esc(claims.email || "an unknown account") + ".", false);
+      if (window.google) google.accounts.id.disableAutoSelect();
+      return;
+    }
+    sessionStorage.setItem(GOOGLE_GATE_KEY, claims.sub);
+    googleSub = claims.sub;
+    passGate();
+  }
+
+  function passGate() {
+    $("view-google-gate").classList.add("hidden");
+    $("view-login").classList.remove("hidden");
+    initLogin();
+  }
+
+  function initGoogleGate() {
+    const savedSub = sessionStorage.getItem(GOOGLE_GATE_KEY);
+    if (savedSub) { googleSub = savedSub; return passGate(); }
+    if (!window.google) return setTimeout(initGoogleGate, 200);
+    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredential });
+    google.accounts.id.renderButton($("g_id_button"), { theme: "outline", size: "large", text: "signin_with" });
+  }
+
   /* ---------- login flow ---------- */
   function stored() { try { return JSON.parse(localStorage.getItem(STORE_KEY)); } catch { return null; } }
   function loginMsg(text, ok) { $("login-msg").innerHTML = text ? '<div class="msg ' + (ok ? "ok" : "err") + '">' + esc(text) + "</div>" : ""; }
@@ -357,13 +404,30 @@
     if (s && s.enc) {
       $("login-form").classList.remove("hidden");
       $("setup-form").classList.add("hidden");
-      $("login-title").textContent = "Editor login";
-      $("login-sub").textContent = "Connected to " + s.owner + "/" + s.repo + ". Enter your password to unlock.";
+      $("login-title").textContent = "Connecting…";
+      $("login-sub").textContent = "Connected to " + s.owner + "/" + s.repo + ".";
+      autoUnlock(s);
     } else {
       $("login-form").classList.add("hidden");
       $("setup-form").classList.remove("hidden");
       $("login-title").textContent = "First-time setup";
-      $("login-sub").textContent = "Connect the editor to your repository. This is done once per device.";
+      $("login-sub").textContent = "Connect the editor to your repository. This is done once per device — signing in with Google will unlock it automatically next time.";
+    }
+  }
+
+  async function autoUnlock(s) {
+    loginMsg("Unlocking…", true);
+    try {
+      token = await decryptToken(s.enc, googleSub);
+    } catch {
+      return loginMsg("Couldn't unlock the stored connection on this device. Use \"Reset connection\" and set it up again.");
+    }
+    cfg = { owner: s.owner, repo: s.repo, branch: s.branch };
+    try {
+      await fetchData();
+      enterEditor();
+    } catch (e) {
+      loginMsg(e.message);
     }
   }
 
@@ -377,15 +441,13 @@
 
   $("btn-setup").addEventListener("click", async () => {
     const owner = $("in-owner").value.trim(), repo = $("in-repo").value.trim(), branch = $("in-branch").value.trim() || "main";
-    const tok = $("in-token").value.trim(), p1 = $("in-newpass").value, p2 = $("in-newpass2").value;
+    const tok = $("in-token").value.trim();
     if (!owner || !repo || !tok) return loginMsg("Fill in the username, repository and token.");
-    if (p1.length < 6) return loginMsg("Choose a password of at least 6 characters.");
-    if (p1 !== p2) return loginMsg("The two passwords don't match.");
     loginMsg("Verifying with GitHub…", true);
     cfg = { owner, repo, branch }; token = tok;
     try {
       await fetchData();
-      const enc = await encryptToken(tok, p1);
+      const enc = await encryptToken(tok, googleSub);
       localStorage.setItem(STORE_KEY, JSON.stringify({ owner, repo, branch, enc }));
       enterEditor();
     } catch (e) {
@@ -393,39 +455,21 @@
     }
   });
 
-  $("btn-unlock").addEventListener("click", unlock);
-  $("in-password").addEventListener("keydown", (e) => { if (e.key === "Enter") unlock(); });
-  async function unlock() {
-    const s = stored();
-    if (!s) return initLogin();
-    loginMsg("Unlocking…", true);
-    try {
-      token = await decryptToken(s.enc, $("in-password").value);
-    } catch {
-      return loginMsg("Wrong password.");
-    }
-    cfg = { owner: s.owner, repo: s.repo, branch: s.branch };
-    try {
-      await fetchData();
-      enterEditor();
-    } catch (e) {
-      loginMsg(e.message);
-    }
-  }
-
   $("btn-lock").addEventListener("click", () => {
     if (dirty && !confirm("You have unsaved changes that will be lost. Lock anyway?")) return;
-    token = null; data = null; sha = null; setDirty(false);
-    $("in-password").value = "";
+    token = null; data = null; sha = null; googleSub = null; setDirty(false);
+    sessionStorage.removeItem(GOOGLE_GATE_KEY);
     $("view-editor").classList.add("hidden");
-    $("view-login").classList.remove("hidden");
+    $("view-login").classList.add("hidden");
+    $("view-google-gate").classList.remove("hidden");
     loginMsg("");
-    initLogin();
+    gateMsg("");
+    initGoogleGate();
   });
 
   function enterEditor() {
     loginMsg("");
-    $("in-token").value = ""; $("in-newpass").value = ""; $("in-newpass2").value = ""; $("in-password").value = "";
+    $("in-token").value = "";
     $("view-login").classList.add("hidden");
     $("view-editor").classList.remove("hidden");
     $("conn-line").textContent = cfg.owner + "/" + cfg.repo + " · " + cfg.branch;
@@ -825,7 +869,7 @@
     renderMeta();
   }
 
-  initLogin();
+  initGoogleGate();
 })();
 </script>
 </body>
